@@ -82,7 +82,7 @@ const ScanQRScreen = ({ navigation }) => {
         // Check if the book is already in scannedBooks
         const isDuplicate = scannedBooks.some((book) => book.id === bookData.id);
         if (isDuplicate) {
-          Alert.alert('Duplicate Scan', 'We only allow the loaning of one copy per book.', [{
+          Alert.alert('Duplicate Scan', 'You can only loan one copy per book.', [{
             text: 'OK',
             onPress: () => resetScan(),
           }]);

@@ -19,7 +19,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LineChart, PieChart } from 'react-native-chart-kit';
 import { getAllBooks } from '../../services/bookService';
-import { getAllBorrows } from '../../services/borrowService';
+import { getAllLoanedBooks } from '../../services/loanService';
 import { getAllUsers } from '../../services/userService';
 
 const ReportsScreen = () => {
@@ -29,7 +29,7 @@ const ReportsScreen = () => {
   const [userStats, setUserStats] = useState(null);
   const [timeRange, setTimeRange] = useState('week');
   const [popularBooks, setPopularBooks] = useState([]);
-  const [activeBorrowers, setActiveBorrowers] = useState([]);
+  const [activeReaders, setActiveReaders] = useState([]);
   const [overdueBooks, setOverdueBooks] = useState([]);
   const [requestedBooks, setRequestedBooks] = useState([]);
   
@@ -43,7 +43,7 @@ const ReportsScreen = () => {
       
       // Fetch all books, borrows, and users
       const books = await getAllBooks();
-      const borrows = await getAllBorrows();
+      const borrows = await getAllLoanedBooks();
       const users = await getAllUsers();
       
       // Calculate statistics
@@ -85,12 +85,12 @@ const ReportsScreen = () => {
     // Book statistics
     const totalBooks = books.length; // Use total from response
     const availableBooks = booksData.filter(book => book.status === 'available').length;
-    const borrowedBooks = booksData.filter(book => book.status === 'borrowed').length;
+    const loanedBooks = booksData.filter(book => book.status === 'loaned').length;
     const unavailableBooks = booksData.filter(book => book.status === 'unavailable').length;
     
     // Borrow statistics
     const totalBorrows = filteredBorrows.length;
-    const activeBorrows = filteredBorrows.filter(borrow => borrow.status === 'borrowed').length;
+    const activeBorrows = filteredBorrows.filter(borrow => borrow.status === 'loaned').length;
     const returnedBorrows = filteredBorrows.filter(borrow => borrow.status === 'returned').length;
     
     // User statistics
@@ -104,7 +104,7 @@ const ReportsScreen = () => {
     const popularBooksData = findPopularBooks(booksData, borrowsData);
     
     // Find active borrowers
-    const activeBorrowersData = findActiveBorrowers(usersData, borrowsData);
+    const activeReadersData = findActiveReaders(usersData, borrowsData);
     
     // Find overdue books
     const overdueBooksData = findOverdueBooks(booksData, borrowsData);
@@ -129,7 +129,7 @@ const ReportsScreen = () => {
     setBookStats({
       totalBooks,
       availableBooks,
-      borrowedBooks,
+      loanedBooks,
       unavailableBooks,
       dailyBorrows
     });
@@ -146,7 +146,7 @@ const ReportsScreen = () => {
     });
     
     setPopularBooks(popularBooksData);
-    setActiveBorrowers(activeBorrowersData);
+    setActiveReaders(activeReadersData);
     setOverdueBooks(overdueBooksData);
     setRequestedBooks(requestedBooksData);
   };
@@ -220,15 +220,15 @@ const ReportsScreen = () => {
         title: book.title,
         author: book.author,
         coverUrl: book.imageUrl,
-        borrow_count: bookBorrowCounts[book.id] || 0
+        loan_count: bookBorrowCounts[book.id] || 0
       }))
-      .sort((a, b) => b.borrow_count - a.borrow_count)
+      .sort((a, b) => b.loan_count - a.loan_count)
       .slice(0, 5);
     
     return popularBooks;
   };
   
-  const findActiveBorrowers = (users, borrows) => {
+  const findActiveReaders = (users, borrows) => {
     const userBorrowCounts = {};
     
     borrows.forEach(borrow => {
@@ -241,9 +241,9 @@ const ReportsScreen = () => {
         id: user.id,
         name: user.name,
         email: user.email,
-        borrow_count: userBorrowCounts[user.id] || 0
+        loan_count: userBorrowCounts[user.id] || 0
       }))
-      .sort((a, b) => b.borrow_count - a.borrow_count)
+      .sort((a, b) => b.loan_count - a.loan_count)
       .slice(0, 5);
     
     return borrowers;
@@ -254,7 +254,7 @@ const ReportsScreen = () => {
     
     const overdueBorrows = borrows
       .filter(borrow => {
-        if (borrow.status !== 'borrowed') return false;
+        if (borrow.status !== 'loaned') return false;
         const dueDate = borrow.due_date.toDate();
         return dueDate < now;
       })
@@ -335,8 +335,8 @@ const ReportsScreen = () => {
               <View style={[styles.statIcon, { backgroundColor: '#FFF3E0' }]}>
                 <MaterialCommunityIcons name="book-account" size={24} color="#FF9500" />
               </View>
-              <Text style={styles.statValue}>{bookStats?.borrowedBooks || 0}</Text>
-              <Text style={styles.statLabel}>Borrowed</Text>
+              <Text style={styles.statValue}>{bookStats?.loanedBooks || 0}</Text>
+              <Text style={styles.statLabel}>Loaned</Text>
             </View>
           </View>
           
@@ -373,7 +373,7 @@ const ReportsScreen = () => {
           <Card.Content>
             <Title style={styles.cardTitle}>Borrowing Trends</Title>
             <Paragraph style={styles.chartDescription}>
-              Number of books borrowed over time
+              Number of books loaned over time
             </Paragraph>
             
             <LineChart
@@ -419,8 +419,8 @@ const ReportsScreen = () => {
                   legendFontSize: 12
                 },
                 {
-                  name: 'Borrowed',
-                  population: bookStats.borrowedBooks,
+                  name: 'Loaned',
+                  population: bookStats.loanedBooks,
                   color: '#FF9500',
                   legendFontColor: '#333333',
                   legendFontSize: 12
@@ -467,8 +467,8 @@ const ReportsScreen = () => {
                     </View>
                   )}
                   right={() => (
-                    <Chip style={styles.borrow_countChip}>
-                      {book.borrow_count} borrows
+                    <Chip style={styles.loan_countChip}>
+                      {book.loan_count} borrows
                     </Chip>
                   )}
                 />
@@ -482,10 +482,10 @@ const ReportsScreen = () => {
       
       <Card style={styles.card}>
         <Card.Content>
-          <Title style={styles.cardTitle}>Active Borrowers</Title>
+          <Title style={styles.cardTitle}>Active Readers</Title>
           
-          {activeBorrowers.length > 0 ? (
-            activeBorrowers.map((user, index) => (
+          {activeReaders.length > 0 ? (
+            activeReaders.map((user, index) => (
               <View key={user.id}>
                 {index > 0 && <Divider style={styles.divider} />}
                 <List.Item
@@ -499,8 +499,8 @@ const ReportsScreen = () => {
                     </View>
                   )}
                   right={() => (
-                    <Chip style={styles.borrow_countChip}>
-                      {user.borrow_count} borrows
+                    <Chip style={styles.loan_countChip}>
+                      {user.loan_count} borrows
                     </Chip>
                   )}
                 />
@@ -570,7 +570,7 @@ const ReportsScreen = () => {
                 {index > 0 && <Divider style={styles.divider} />}
                 <List.Item
                   title={item.title}
-                  description={`Borrowed by: ${item.borrower}`}
+                  description={`Loaned by: ${item.borrower}`}
                   left={() => (
                     <MaterialCommunityIcons
                       name="clock-alert"
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
   },
-  borrow_countChip: {
+  loan_countChip: {
     backgroundColor: '#E3F2FD',
     marginVertical: 3,
   },

@@ -4,7 +4,7 @@ import { db } from './firebase';
 // Check if a user with the given email exists in our database
 export const checkUserExists = async (input) => {
   try {
-    const usersRef = collection(db, 'Users');
+    const usersRef = collection(db, 'Guests');
     
     // Create two queries: one for email and one for phone
     const emailQuery = query(usersRef, where("profile.email", "==", input));
@@ -80,12 +80,7 @@ export const createGuestUser = async (name, email, phone) => {
     // Check if a user with this email already exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
-      // If user exists but is a guest, return it
-      if (existingUser.profile?.role === 'guest') {
-        return existingUser;
-      }
-      // Otherwise throw error that user already exists
-      throw new Error('A user with this email already exists');
+      return existingUser;
     }
     
     const now = new Date();
@@ -95,7 +90,6 @@ export const createGuestUser = async (name, email, phone) => {
       profile: {
         email,
         name,
-        role: 'guest',
         phone,
         email_verified: false,
         mobile_verified: false,
@@ -117,7 +111,7 @@ export const createGuestUser = async (name, email, phone) => {
     };
     
     // Add to Users collection
-    const userRef = collection(db, 'Users');
+    const userRef = collection(db, 'Guests');
     const docRef = await addDoc(userRef, userData);
     
     // Return the created user with ID
@@ -133,7 +127,7 @@ export const createGuestUser = async (name, email, phone) => {
 
 export const getGuestByContact = async (contact) => {
   try {
-    const usersRef = collection(db, 'Users');
+    const usersRef = collection(db, 'Guests');
     const emailQuery = query(usersRef, where("profile.email", "==", contact));
     const phoneQuery = query(usersRef, where("profile.phone", "==", contact));
     

@@ -9,7 +9,7 @@ const FeaturedBook = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=
     switch (status) {
       case 'available':
         return '#4CD964';
-      case 'borrowed':
+      case 'loaned':
         return '#FF9500';
       case 'unavailable':
         return '#FF3B30';
@@ -68,7 +68,7 @@ const FeaturedBook = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=
           <View style={styles.bookStats}>
             <View style={styles.bookStat}>
               <MaterialCommunityIcons name="book-open-page-variant" size={16} color="#4A90E2" />
-              <Text style={styles.bookStatText}>{book.borrow_count? book.borrow_count : 0}</Text>
+              <Text style={styles.bookStatText}>{book.loan_count? book.loan_count : 0}</Text>
             </View>
             {book.average_rating > 0 && (
               <View style={styles.bookStat}>

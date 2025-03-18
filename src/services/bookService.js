@@ -355,7 +355,7 @@ export const uploadBook = async (bookData, currentUser) => {
         location: bookData.location || libraryCode,
       },
       stats: {
-        borrow_count: 0,
+        loan_count: 0,
         ratings: bookData.ratings || [],
         average_rating: 0,
         copy_count: 1,
@@ -448,7 +448,7 @@ export const batchUploadBooks = async (books, currentUser) => {
           location: bookData.location || libraryCode,
         },
         stats: {
-          borrow_count: 0,
+          loan_count: 0,
           ratings: bookData.ratings || [],
           average_rating: 0,
           copy_count: 1,
@@ -542,7 +542,7 @@ export const batchUploadBooks = async (books, currentUser) => {
 //       },
       
 //       stats:{
-//         borrow_count: 0,
+//         loan_count: 0,
 //         ratings: bookData.ratings || [],
 //         average_rating: 0,
 //         copy_count: 1, // Initialize copy count
@@ -838,10 +838,10 @@ export const updateBookStatus = async (book_id, status) => {
     let availableCopies = currentStats.available_copies || 1;
     
     // Update available copies based on status change
-    if (status === 'borrowed' && bookData.status === 'available') {
-      // Book is being borrowed, decrease available copies
+    if (status === 'loaned' && bookData.status === 'available') {
+      // Book is being loaned, decrease available copies
       availableCopies = Math.max(0, availableCopies - 1);
-    } else if (status === 'available' && bookData.status === 'borrowed') {
+    } else if (status === 'available' && bookData.status === 'loaned') {
       // Book is being returned, increase available copies
       availableCopies = Math.min(copyCount, availableCopies + 1);
     }
@@ -970,13 +970,13 @@ export const getBooksByStatus = async (status) => {
   }
 };
 
-// Get borrowed books
-export const getBorrowedBooks = async () => {
-  return getBooksByStatus('borrowed');
+// Get loaned books
+export const getLoanedBooks = async () => {
+  return getBooksByStatus('loaned');
 };
 
-// Get most borrowed books
-export const getMostBorrowedBooks = async (limit = 10) => {
+// Get most loaned books
+export const getMostLoanedBooks = async (limit = 10) => {
   try {
     const booksRef = collection(db, 'Books');
     const querySnapshot = await getDocs(booksRef);
@@ -988,7 +988,7 @@ export const getMostBorrowedBooks = async (limit = 10) => {
     
     // Sort by borrow count in descending order
     const sortedBooks = books.sort((a, b) => (
-      (b.stats?.borrow_count || b.borrow_count || 0) - (a.stats?.borrow_count || a.borrow_count || 0)
+      (b.stats?.loan_count || b.loan_count || 0) - (a.stats?.loan_count || a.loan_count || 0)
     ));
     
     const limitedBooks = sortedBooks.slice(0, limit);
@@ -998,7 +998,7 @@ export const getMostBorrowedBooks = async (limit = 10) => {
       data: limitedBooks
     };
   } catch (error) {
-    console.error('Error getting most borrowed books:', error);
+    console.error('Error getting most loaned books:', error);
     throw error;
   }
 };

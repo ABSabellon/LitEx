@@ -21,7 +21,7 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
     switch (status) {
       case 'available':
         return '#4CD964';
-      case 'borrowed':
+      case 'loaned':
         return '#FF9500';
       case 'unavailable':
         return '#FF3B30';

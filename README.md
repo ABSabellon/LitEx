@@ -9,14 +9,14 @@ A React Native application for library management with QR code-based borrowing s
 - Book management (add, edit, delete)
 - Barcode scanning to add books using Google Books API
 - QR code generation for books
-- Borrowers management
+- Readers management
 - Reports and analytics
 
 ### Borrower Features
 - Browse and search library catalog
 - Scan QR codes to borrow books
 - OTP verification for secure borrowing
-- View borrowed books and history
+- View loaned books and history
 - Return books
 
 ## Tech Stack

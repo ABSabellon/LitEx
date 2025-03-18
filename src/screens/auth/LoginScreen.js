@@ -24,37 +24,15 @@ const LoginScreen = ({ navigation }) => {
   const { signIn, error } = useAuth();
   
   const handleLogin = async () => {
-    // For testing, use hardcoded credentials
-   
-    // if (!email || !password) {
-    //   Alert.alert('Error', 'Please fill in all fields');
-    //   return;
-    // }
-    
     try {
       setLoading(true);
-      
-      const user =  await signIn(email, password);
-
-    //  const user = await signIn('supertest@test.com', 'tup5ab8e');
-
-      if(user.profile.role === 'admin'){
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Admin' }],
-          });
-        }, 500);
-      }else{
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Borrower' }],
-          });
-        }, 500);
+      const user = await signIn(email, password);
+      if (user) {
+        setLoading(false);
+        navigation.navigate('User');
       }
     } catch (error) {
-      setLoading(false); // Only hide loader on error
+      setLoading(false);
       Alert.alert('Login Failed', error.message);
     }
   };

@@ -16,6 +16,7 @@ const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
   const ratingAverage = ratings.summary?.average || 0;
 
   useEffect(() => {
+    // console.log('data :: ', data);
     // Add any side effects if needed when data changes
   }, [data]);
 
@@ -31,10 +32,12 @@ const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
       {/* Middle: Book Details */}
       <View style={styles.detailsContainer}>
         <View style={styles.row}>
-          <Chip style={styles.copyChip} textStyle={styles.copyText}>
+          {copyCount && <Chip style={styles.copyChip} textStyle={styles.copyText}>
             {copyCount}x
-          </Chip>
-          <Text style={styles.title}>{title}</Text>
+          </Chip>}
+          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+            {title}
+          </Text>
         </View>
         <Text style={styles.author}>
           By <Text style={styles.authorName}>{authorName}</Text>
@@ -47,9 +50,11 @@ const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
 
       {/* Right: Plus and Delete Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={onAdd} style={styles.addButton}>
-          <MaterialCommunityIcons name="plus" size={24} color="#4A90E2" />
-        </TouchableOpacity>
+        {onAdd && 
+          <TouchableOpacity onPress={onAdd} style={styles.addButton}>
+            <MaterialCommunityIcons name="plus" size={24} color="#4A90E2" />
+          </TouchableOpacity>
+        }
         <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
           <MaterialCommunityIcons name="trash-can-outline" size={24} color="#FF3B30" />
         </TouchableOpacity>
@@ -79,12 +84,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   detailsContainer: {
-    flex: 1,
+    flex: 1, // Takes available space but respects boundaries
     justifyContent: 'center',
+    marginRight: 10, // Adds space between details and buttons
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap', // Allows title to wrap to next line
   },
   copyChip: {
     backgroundColor: '#E0E0E0',
@@ -99,6 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
+    flexShrink: 1, // Allows title to shrink and wrap
   },
   author: {
     fontSize: 14,
@@ -119,11 +127,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: 'center',
-    marginLeft: 10,
+    justifyContent: 'center',
+    width: 50, // Fixed width to prevent overlap
   },
   addButton: {
     padding: 5,
-    marginBottom: 5, // Space between plus and delete buttons
+    marginBottom: 5,
   },
   deleteButton: {
     padding: 5,

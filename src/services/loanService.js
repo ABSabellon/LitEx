@@ -138,6 +138,55 @@ export const loanBook = async (book_id, guestDetails) => {
   }
 };
 
+// Batch Loan books
+
+// Batch loan multiple books
+export const batchLoanBooks = async (bookIds, guestDetails) => {
+  try {
+    const results = [];
+    const loanedRef = collection(db, 'BookLoans');
+    const bookRefs = bookIds.map(book_id => doc(db, 'Books', book_id));
+    
+    // Start a transaction-like process for consistency
+    for (const book_id of bookIds) {
+      // Update book status to 'loaned'
+      await updateBookStatus(book_id, 'loaned');
+
+      // Create a borrow record
+      const borrowDoc = await addDoc(loanedRef, {
+        book_id,
+        guest: guestDetails,
+        loaned_date: Timestamp.now(),
+        due_date: Timestamp.fromDate(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)), // 14 days from now
+        return_date: null,
+        status: 'active',
+      });
+
+      // Increment the borrow count for the book
+      const bookRef = doc(db, 'Books', book_id);
+      const bookDoc = await getDoc(bookRef);
+
+      if (bookDoc.exists()) {
+        const currentCount = bookDoc.data().loan_count || 0;
+        await updateDoc(bookRef, {
+          loan_count: currentCount + 1
+        });
+      }
+
+      results.push({ id: borrowDoc.id, book_id, guest: guestDetails });
+    }
+
+    return {
+      success: true,
+      results: results,
+      message: `${bookIds.length} book(s) loaned successfully`
+    };
+  } catch (error) {
+    console.error('Error in batch loaning books:', error);
+    throw new Error(`Batch loan failed: ${error.message}`);
+  }
+};
+
 // Return a book
 export const returnBook = async (borrow_id) => {
   try {

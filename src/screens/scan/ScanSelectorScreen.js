@@ -12,12 +12,12 @@ const ScanSelectorScreen = ({ navigation }) => {
       <View style={styles.optionsContainer}>
         <TouchableOpacity 
           style={styles.option}
-          onPress={() => navigation.navigate('AdminScanQR')}
+          onPress={() => navigation.navigate('ScanQR')}
         >
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons name="qrcode-scan" size={64} color="#4A90E2" />
           </View>
-          <Text style={styles.optionTitle}>View Book</Text>
+          <Text style={styles.optionTitle}>Lend Books</Text>
           <Text style={styles.optionDescription}>
             Scan a QR code to view book details in the library
           </Text>
@@ -30,7 +30,7 @@ const ScanSelectorScreen = ({ navigation }) => {
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons name="barcode-scan" size={64} color="#4A90E2" />
           </View>
-          <Text style={styles.optionTitle}>Add A New Book</Text>
+          <Text style={styles.optionTitle}>Add Books</Text>
           <Text style={styles.optionDescription}>
             Scan a book's ISBN barcode to add it to the library
           </Text>

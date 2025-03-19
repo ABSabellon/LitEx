@@ -101,9 +101,9 @@ const ProfileScreen = ({ navigation }) => {
           </View>
           <Text style={styles.userName}>{userProfile?.name}</Text>
           <Text style={styles.userEmail}>{userProfile?.email}</Text>
-          <View style={[styles.roleBadge, isSuperAdmin() ? styles.superAdminBadge : {}]}>
-            <Text style={[styles.roleText, isSuperAdmin() ? styles.superAdminText : {}]}>
-              {isSuperAdmin() ? 'Super Administrator' : 'Administrator'}
+          <View style={[styles.roleBadge, styles.superAdminBadge]}>
+            <Text style={[styles.roleText,styles.superAdminText]}>
+              Library Owner
             </Text>
           </View>
         </View>

@@ -17,12 +17,11 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // Create a new user
-  const signUp = async (email, password, name, role = 'borrower', phone = '') => {
+  const signUp = async (email, password, name, phone = '') => {
     try {
 
       setError('');
@@ -40,7 +39,6 @@ export const AuthProvider = ({ children }) => {
           uid: userCredential.user.uid,
           email,
           name,
-          role,
           phone,
           email_verified: false,
           mobile_verified: false,
@@ -145,7 +143,6 @@ export const AuthProvider = ({ children }) => {
       setError('');
       await firebaseSignOut(auth);
       setCurrentUser(null);
-      setUserRole(null);
     } catch (err) {
       setError(err.message);
       throw err;
@@ -163,20 +160,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Check if user is admin
-  const isAdmin = () => {
-    return userRole === 'admin' || userRole === 'superadmin';
-  };
-
-  // Check if user is super admin
-  const isSuperAdmin = () => {
-    return userRole === 'superadmin';
-  };
-
-  // Check if user is borrower
-  const isBorrower = () => {
-    return userRole === 'borrower';
-  };
 
   // Get user profile from Firestore
   const getUserProfile = async (uid) => {
@@ -192,38 +175,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
   
-  // Promote user to super admin - only callable by existing super admins
-  const promoteToSuperAdmin = async (adminUid) => {
-    try {
-      const userRef = doc(db, 'Users', adminUid);
-      const userDoc = await getDoc(userRef);
-      
-      if (!userDoc.exists()) {
-        throw new Error('User not found');
-      }
-      
-      const userData = userDoc.data();
-      const currentRole = userData?.profile?.role;
-      
-      // Can only promote admins to super admins
-      if (currentRole !== 'admin') {
-        throw new Error('Only administrators can be promoted to super administrators');
-      }
-      
-      // Update the user's role
-      await updateDoc(userRef, {
-        'profile.role': 'superadmin',
-        'profile.promoted_at': new Date(),
-        'profile.promoted_by': currentUser?.uid,
-      });
-      
-      return true;
-    } catch (err) {
-      console.error('Error promoting user to super admin:', err);
-      throw err;
-    }
-  };
-
   // Update user auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -236,10 +187,10 @@ export const AuthProvider = ({ children }) => {
         const profile = await getUserProfile(user.uid);
         
         if (profile) {
-          setUserRole(profile.profile?.role);
           
           setCurrentUser({
             ...profile,
+            display_name:profile.profile.name,
             access_token: user.stsTokenManager?.accessToken  
           });
           
@@ -276,18 +227,13 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     currentUser,
-    userRole,
     loading,
     error,
     signUp,
     signIn,
     signOut,
     resetPassword,
-    isAdmin,
-    isSuperAdmin,
-    isBorrower,
     getUserProfile,
-    promoteToSuperAdmin
   };
 
   return (

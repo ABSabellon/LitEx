@@ -6,7 +6,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 // Import admin screens
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import BookListScreen from '../screens/books/BookListScreen';
-import AddBookScreen from '../screens/books/AddBookScreen';
 import BookDetailsScreen from '../screens/books/BookDetailsScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ReportsScreen from '../screens/admin/ReportsScreen';
@@ -16,8 +15,6 @@ import ScanQRScreen from '../screens/scan/ScanQRScreen';
 import ScanSelectorScreen from '../screens/scan/ScanSelectorScreen';
 import GenerateQRScreen from '../screens/qr/GenerateQRScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
-import ManageInvitesScreen from '../screens/admin/ManageInvitesScreen';
-import ManageAdminsScreen from '../screens/admin/ManageAdminsScreen';
 import AuthorDetailsScreen from '../screens/common/AuthorDetailsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -29,8 +26,8 @@ const DashboardStack = () => (
     <Stack.Screen name="AdminDashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
     <Stack.Screen name="BookDetails" component={BookDetailsScreen} options={{ title: 'Book Details' }} />
     <Stack.Screen name="AuthorDetails" component={AuthorDetailsScreen} options={{ title: 'Author Details' }} />
-    <Stack.Screen name="AddBook" component={AddBookScreen} options={{ title: 'Add New Book' }} />
     <Stack.Screen name="ScanBook" component={ScanBookScreen} options={{ title: 'Scan Book' }} />
+    <Stack.Screen name="ScanQR" component={ScanQRScreen} options={{ title: 'Scan Library QR' }} />
     <Stack.Screen name="GenerateQR" component={GenerateQRScreen} options={{ title: 'Generate QR Code' }} />
     <Stack.Screen name="BorrowingHistory" component={LoanedHistoryScreen} options={{ title: 'Borrowing History' }} />
   </Stack.Navigator>
@@ -39,7 +36,6 @@ const DashboardStack = () => (
 const BooksStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="BookList" component={BookListScreen} options={{ title: 'Library Books' }} />
-    <Stack.Screen name="AddBook" component={AddBookScreen} options={{ title: 'Add New Book' }} />
     <Stack.Screen name="BookDetails" component={BookDetailsScreen} options={{ title: 'Book Details' }} />
     <Stack.Screen name="ScanBook" component={ScanBookScreen} options={{ title: 'Scan Book' }} />
     <Stack.Screen name="GenerateQR" component={GenerateQRScreen} options={{ title: 'Generate QR Code' }} />
@@ -51,7 +47,7 @@ const BooksStack = () => (
 const ScanStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="ScanSelector" component={ScanSelectorScreen} options={{ title: 'Scan Options' }} />
-    <Stack.Screen name="AdminScanQR" component={ScanQRScreen} options={{ title: 'Scan Library QR' }} />
+    <Stack.Screen name="ScanQR" component={ScanQRScreen} options={{ title: 'Scan Library QR' }} />
     <Stack.Screen name="AdminScanISBN" component={ScanBookScreen} options={{ title: 'Scan ISBN Barcode' }} />
     <Stack.Screen name="AdminScanBookDetails" component={BookDetailsScreen} options={{ title: 'Book Details' }} />
     <Stack.Screen name="AdminGenerateQR" component={GenerateQRScreen} options={{ title: 'Generate QR Code' }} />
@@ -75,9 +71,7 @@ const ReportsStack = () => (
 const ProfileStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="AdminProfile" component={ProfileScreen} options={{ title: 'My Profile' }} />
-    <Stack.Screen name="ManageInvites" component={ManageInvitesScreen} options={{ title: 'Admin Invitations' }} />
-    <Stack.Screen name="ManageAdmins" component={ManageAdminsScreen} options={{ title: 'Manage Administrators' }} />
-  </Stack.Navigator>
+    </Stack.Navigator>
 );
 
 const UserNavigator = () => {

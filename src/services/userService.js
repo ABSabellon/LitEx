@@ -60,7 +60,6 @@ export const getAllUsers = async () => {
       profile: {
         name: doc.data().profile?.name,
         email: doc.data().profile?.email,
-        role: doc.data().profile?.role
       }
     }));
 

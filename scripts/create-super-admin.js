@@ -45,7 +45,6 @@ async function createSuperAdmin() {
         uid: uid,
         email: email,
         name: 'Super Administrator',
-        role: 'superadmin',
         phone: '',
         email_verified: false,
       },

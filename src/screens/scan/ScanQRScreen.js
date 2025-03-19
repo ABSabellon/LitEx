@@ -20,6 +20,8 @@ import { batchLoanBooks } from '../../services/loanService';
 import { Provider as PaperProvider } from 'react-native-paper';
 import ScannedBook from '../../components/Cards/ScannedBook';
 
+const { height } = Dimensions.get('window');
+
 const ScanQRScreen = ({ navigation }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -36,6 +38,7 @@ const ScanQRScreen = ({ navigation }) => {
     phone: '',
   });
   const [loanLoading, setLoanLoading] = useState(false);
+  const [addManually, setAddManually] = useState(false);
 
   useEffect(() => {
     if (permission && !permission.granted && !permission.canAskAgain && !alertShown) {
@@ -131,7 +134,7 @@ const ScanQRScreen = ({ navigation }) => {
 
   const drawerTranslateY = drawerAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [600, 0],
+    outputRange: [height * 0.75, 0],
   });
 
   const openLoanModal = () => {
@@ -274,18 +277,47 @@ const ScanQRScreen = ({ navigation }) => {
                   <Title style={styles.drawerTitle}>{scannedBooks.length} Scanned Books</Title>
 
                   <View style={styles.searchContainer}>
+                    {addManually && (
+                      <TouchableOpacity 
+                        style={styles.chevronButton}
+                        onPress={() => setAddManually(false)}
+                      >
+                        <MaterialCommunityIcons 
+                          name="chevron-left" 
+                          size={32} 
+                          color="#4A90E2" 
+                        />
+                      </TouchableOpacity>
+                    )}
                     <TextInput
                       mode="outlined"
-                      placeholder="Search scanned books..."
-                      style={styles.searchInput}
+                      placeholder={addManually ? "Enter ISBN,Book Name, Author..." : "Search scanned books..."}
+                      style={[styles.searchInput, addManually && styles.searchInputWithChevron]}
                       contentStyle={styles.searchContent}
                       left={<TextInput.Icon icon="magnify" />}
                       outlineStyle={styles.searchOutline}
                     />
+                    {!addManually && (
+                      <TouchableOpacity 
+                        style={styles.plusButton}
+                        onPress={() => setAddManually(true)}
+                      >
+                        <MaterialCommunityIcons 
+                          name="plus" 
+                          size={32} 
+                          color="#4A90E2" 
+                        />
+                      </TouchableOpacity>
+                    )}
                   </View>
 
                   <ScrollView>
-                    {scannedBooks.length > 0 ? (
+                    {addManually ? (
+                      <TouchableOpacity style={styles.manualAddContainer}>
+                        <MaterialCommunityIcons name="book-plus" size={32} color="#4A90E2" />
+                        <Text style={styles.manualAddText}>Add Manually</Text>
+                      </TouchableOpacity>
+                    ) : scannedBooks.length > 0 ? (
                       scannedBooks.map((book, index) => (
                         <ScannedBook
                           key={book.id || index}
@@ -316,7 +348,7 @@ const ScanQRScreen = ({ navigation }) => {
                   </ScrollView>
                 </View>
 
-                {scannedBooks.length > 0 && (
+                {!addManually && scannedBooks.length > 0 && (
                   <View style={styles.actionButtonsContainer}>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.deleteAllButton]}
@@ -527,7 +559,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 600,
+    height: height * 0.75,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -545,6 +577,7 @@ const styles = StyleSheet.create({
   drawerSection: {
     padding: 10,
     flex: 1,
+    height:'100%',
   },
   drawerTitle: {
     fontSize: 13,
@@ -568,6 +601,13 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 5,
   },
+  chevronButton: {
+    padding: 5,
+    marginRight: 10,
+  },
+  searchInputWithChevron: {
+    flex: 1,
+  },
   searchOutline: {
     borderRadius: 20,
   },
@@ -576,6 +616,20 @@ const styles = StyleSheet.create({
     color: '#999999',
     marginVertical: 20,
     fontStyle: 'italic',
+  },
+  manualAddContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    marginTop: 20,
+    height:'100%',
+  },
+  manualAddText: {
+    fontSize: 16,
+    color: '#4A90E2',
+    marginLeft: 10,
+    fontWeight: '500',
   },
   actionButtonsContainer: {
     flexDirection: 'row',
@@ -639,7 +693,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: Dimensions.get('window').height * 0.6,
+    height: height * 0.6,
     paddingTop: 20,
   },
   loanModalContent: {
@@ -717,6 +771,7 @@ const styles = StyleSheet.create({
   cancelModalButton: {
     marginTop: 10,
   },
+  
 });
 
 export default ScanQRScreen;

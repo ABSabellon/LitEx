@@ -36,6 +36,8 @@ const ScanBookScreen = ({ navigation, route }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnimation = useRef(new Animated.Value(0)).current;
 
+  const [addManually, setAddManually] = useState(false);
+
   useEffect(() => {
     if (permission && !permission.granted && !permission.canAskAgain && !alertShown) {
       Alert.alert(
@@ -126,7 +128,7 @@ const ScanBookScreen = ({ navigation, route }) => {
 
   const drawerTranslateY = drawerAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [600, 0],
+    outputRange: [height * 0.75, 0],
   });
 
   // Helper function to get unique books with their counts
@@ -291,22 +293,48 @@ const ScanBookScreen = ({ navigation, route }) => {
 
                   {/* Search Input with Icon */}
                   <View style={styles.searchContainer}>
+                    {addManually && (
+                      <TouchableOpacity 
+                        style={styles.chevronButton}
+                        onPress={() => setAddManually(false)}
+                      >
+                        <MaterialCommunityIcons 
+                          name="chevron-left" 
+                          size={32} 
+                          color="#4A90E2" 
+                        />
+                      </TouchableOpacity>
+                    )}
                     <TextInput
                       mode="outlined"
-                      placeholder="Search scanned books..."
-                      style={styles.searchInput}
+                      placeholder={addManually ? "Enter ISBN..." : "Search scanned books..."}
+                      style={[styles.searchInput, addManually && styles.searchInputWithChevron]}
                       contentStyle={styles.searchContent}
                       left={<TextInput.Icon icon="magnify" />}
                       outlineStyle={styles.searchOutline}
                     />
-                    <TouchableOpacity style={styles.plusButton}>
-                      <MaterialCommunityIcons name="plus" size={32} color="#4A90E2" />
-                    </TouchableOpacity>
+                    {!addManually && (
+                      <TouchableOpacity 
+                        style={styles.plusButton}
+                        onPress={() => setAddManually(true)}
+                      >
+                        <MaterialCommunityIcons 
+                          name="plus" 
+                          size={32} 
+                          color="#4A90E2" 
+                        />
+                      </TouchableOpacity>
+                    )}
                   </View>
 
                   {/* Scanned Books */}
                   <ScrollView>
-                    {scannedBooks.length > 0 ? (
+                    {addManually ? (
+                      <TouchableOpacity style={styles.manualAddContainer}>
+                        <MaterialCommunityIcons name="book-plus" size={32} color="#4A90E2" />
+                        <Text style={styles.manualAddText}>Add Manually</Text>
+                      </TouchableOpacity>
+                    ) :scannedBooks.length > 0 ? (
                       getUniqueBooksWithCounts().map(({ book, copyCount }, index) => (
                         <ScannedBook
                           key={book.identifiers?.isbn_13 || book.identifiers?.isbn_10 || index}
@@ -343,7 +371,7 @@ const ScanBookScreen = ({ navigation, route }) => {
                 </View>
 
                 {/* Action Buttons: Delete All and Add Books */}
-                {scannedBooks.length > 0 && (
+                {!addManually && scannedBooks.length > 0 && (
                   <View style={styles.actionButtonsContainer}>
                     <TouchableOpacity
                       style={[styles.actionButton, styles.deleteAllButton]}
@@ -466,7 +494,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 600,
+    height: height * 0.75,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
@@ -477,13 +505,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
   },
   drawerContent: {
-    flex: 1, // Allows content to fill the container
+    flex: 1, 
     flexDirection: 'column',
-    justifyContent: 'space-between', // Pushes action buttons to the bottom
+    justifyContent: 'space-between', 
   },
   drawerSection: {
     padding: 10,
-    flex: 1, // Ensures ScrollView takes available space
+    flex: 1, 
+    height:'100%',
   },
   drawerTitle: {
     fontSize: 13,
@@ -507,6 +536,13 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 5,
   },
+  chevronButton: {
+    padding: 5,
+    marginRight: 10,
+  },
+  searchInputWithChevron: {
+    flex: 1,
+  },
   searchOutline: {
     borderRadius: 20,
   },
@@ -515,6 +551,20 @@ const styles = StyleSheet.create({
     color: '#999999',
     marginVertical: 20,
     fontStyle: 'italic',
+  },
+  manualAddContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    marginTop: 20,
+    height:'100%',
+  },
+  manualAddText: {
+    fontSize: 16,
+    color: '#4A90E2',
+    marginLeft: 10,
+    fontWeight: '500',
   },
   actionButtonsContainer: {
     flexDirection: 'row',

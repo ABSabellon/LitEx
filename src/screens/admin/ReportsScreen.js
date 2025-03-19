@@ -94,7 +94,6 @@ const ReportsScreen = () => {
     const returnedBorrows = filteredBorrows.filter(borrow => borrow.status === 'returned').length;
     
     // User statistics
-    const totalUsers = usersData.filter(user => user.profile.role === 'guest').length;
     const activeUsers = new Set(filteredBorrows.map(borrow => borrow.borrowerId)).size;
     
     // Calculate daily borrows for chart data
@@ -141,7 +140,6 @@ const ReportsScreen = () => {
     });
     
     setUserStats({
-      totalUsers,
       activeUsers
     });
     
@@ -341,21 +339,6 @@ const ReportsScreen = () => {
           </View>
           
           <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <View style={[styles.statIcon, { backgroundColor: '#F5F5F5' }]}>
-                <MaterialCommunityIcons name="account-group" size={24} color="#8E8E93" />
-              </View>
-              <Text style={styles.statValue}>{userStats?.totalUsers || 0}</Text>
-              <Text style={styles.statLabel}>Guests</Text>
-            </View>
-            
-            <View style={styles.statItem}>
-              <View style={[styles.statIcon, { backgroundColor: '#E3F2FD' }]}>
-                <MaterialCommunityIcons name="account-check" size={24} color="#4A90E2" />
-              </View>
-              <Text style={styles.statValue}>{userStats?.activeUsers || 0}</Text>
-              <Text style={styles.statLabel}>Active Users</Text>
-            </View>
             
             <View style={styles.statItem}>
               <View style={[styles.statIcon, { backgroundColor: '#E8F5E9' }]}>

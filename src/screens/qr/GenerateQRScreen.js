@@ -20,6 +20,7 @@ import QRCode from 'react-native-qrcode-svg';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { getBookById, generateBookQR } from '../../services/bookService';
+import { useAuth } from '../../context/AuthContext';
 
 const GenerateQRScreen = ({ navigation, route }) => {
   const [book, setBook] = useState(null);
@@ -28,6 +29,8 @@ const GenerateQRScreen = ({ navigation, route }) => {
   const [hasMediaPermission, setHasMediaPermission] = useState(null);
   const [previewVisible, setPreviewVisible] = useState(false); 
   const viewShotRef = useRef(null);
+
+  const { currentUser } = useAuth();
   
   // Get book ID from route params
   const book_id = route.params?.book_id;
@@ -114,7 +117,7 @@ const GenerateQRScreen = ({ navigation, route }) => {
       <View style={styles.saveLayoutContainer}>
 
         <ViewShot style={styles.viewShotLayout} ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
-          <Text style={styles.saveTitle}>Property of Aileen Sabellon</Text>
+          <Text style={styles.saveTitle}>Property of {currentUser}</Text>
           <View style={styles.saveLayout}>
             <View style={styles.saveQrSection}>
               <QRCode

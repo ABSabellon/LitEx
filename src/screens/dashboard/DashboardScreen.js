@@ -61,6 +61,7 @@ const DashboardScreen = ({ navigation }) => {
   };
   
   useEffect(() => {
+    // console.log('currentUser :: ', currentUser)
     loadDashboardData();
   }, []);
   
@@ -76,7 +77,7 @@ const DashboardScreen = ({ navigation }) => {
       }
     >
       <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome, {currentUser?.displayName || 'Admin'}</Text>
+        <Text style={styles.greeting}>Welcome, {currentUser?.display_name || 'User'}</Text>
         <Text style={styles.date}>{new Date().toDateString()}</Text>
       </View>
       
@@ -119,10 +120,10 @@ const DashboardScreen = ({ navigation }) => {
         <View style={styles.actionButtonsContainer}>
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => navigation.navigate('DashboardTab', { screen: 'AddBook' })}
+            onPress={() => navigation.navigate('DashboardTab', { screen: 'ScanQR' })}
           >
-            <MaterialCommunityIcons name="book-plus" size={32} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Add Book</Text>
+            <MaterialCommunityIcons name="qrcode-scan" size={32} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Lend Book</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
@@ -130,7 +131,7 @@ const DashboardScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('DashboardTab', { screen: 'ScanBook' })}
           >
             <MaterialCommunityIcons name="barcode-scan" size={32} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Scan Book</Text>
+            <Text style={styles.actionButtonText}>Add Book</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 

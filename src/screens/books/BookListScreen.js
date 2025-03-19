@@ -303,12 +303,12 @@ const BookListScreen = ({ navigation }) => {
         </>
       )}
       
-      <FAB
+      {/* <FAB
         style={styles.fab}
         icon="plus"
         onPress={() => navigation.navigate('AddBook')}
         color="#FFFFFF"
-      />
+      /> */}
     </View>
   );
 };

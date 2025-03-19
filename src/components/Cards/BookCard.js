@@ -16,7 +16,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import StarRating from '../StarRating'; // Adjust the path as needed
 import { getBookCoverUrl } from '../../services/bookService'; // Adjust the path as needed
 
-const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=false }) => {
+const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = false }) => {
+  // Normalize categories to always be an array
+  const categories = Array.isArray(book.categories)
+    ? book.categories
+    : typeof book.categories === 'string'
+      ? book.categories.split(', ')
+      : [];
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'available':
@@ -32,7 +39,7 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
 
   const handleCardPress = () => {
     if (bookNavigateTo && navigation) {
-      navigation.navigate(bookNavigateTo, { book_id: book.id, });
+      navigation.navigate(bookNavigateTo, { book_id: book.id });
     }
   };
 
@@ -79,9 +86,9 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
           
           {!admin && (
             <View>
-              {(book.categories && book.categories.length > 0) && (
+              {categories.length > 0 && (
                 <View style={styles.categoriesContainer}>
-                  {book.categories.slice(0, 2).map((category, index) => (
+                  {categories.slice(0, 2).map((category, index) => (
                     <Chip 
                       key={index} 
                       style={styles.categoryChip}
@@ -90,8 +97,8 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
                       {category}
                     </Chip>
                   ))}
-                  {book.categories.length > 2 && (
-                    <Text style={styles.moreCategoriesText}>+{book.categories.length - 2} more</Text>
+                  {categories.length > 2 && (
+                    <Text style={styles.moreCategoriesText}>+{categories.length - 2} more</Text>
                   )}
                 </View>
               )}
@@ -116,7 +123,7 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
             </View>
           )}
           
-          {admin &&(
+          {admin && (
             <View style={styles.bookDetails}>
               <View style={styles.bookDetailRow}>
                 <Text style={styles.detailLabel}>ISBN:</Text>
@@ -134,9 +141,9 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
                 </View>
               </View>
 
-              {(book.categories && book.categories.length > 0) && (
+              {categories.length > 0 && (
                 <View style={styles.categoriesContainer}>
-                  {book.categories.slice(0, 2).map((category, index) => (
+                  {categories.slice(0, 2).map((category, index) => (
                     <Chip 
                       key={index} 
                       style={styles.categoryChip}
@@ -145,8 +152,8 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
                       {category}
                     </Chip>
                   ))}
-                  {book.categories.length > 2 && (
-                    <Text style={styles.moreCategoriesText}>+{book.categories.length - 2} more</Text>
+                  {categories.length > 2 && (
+                    <Text style={styles.moreCategoriesText}>+{categories.length - 2} more</Text>
                   )}
                 </View>
               )}
@@ -189,6 +196,7 @@ const BookCard = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=fals
   );
 };
 
+// Styles remain unchanged
 const styles = StyleSheet.create({
   bookCard: {
     marginBottom: 10,
@@ -240,7 +248,6 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    // marginTop: 4,
     alignItems: 'center',
   },
   categoryChip: {
@@ -302,8 +309,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
-    // paddingTop: 8,
-    // marginTop: 8,
   },
   trashButton: {
     padding: 8,
@@ -330,6 +335,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
-})
+});
 
 export default BookCard;

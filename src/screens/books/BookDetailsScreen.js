@@ -62,6 +62,7 @@ const BookDetailsScreen = ({ navigation, route }) => {
         setLoading(true);
         const bookData = await getBookById(book_id);
         if (bookData) {
+          // console.log('bookData :: ', bookData)
           setBook(bookData);
           fetchBorrowHistory(book_id);
         } else {
@@ -205,6 +206,12 @@ const BookDetailsScreen = ({ navigation, route }) => {
   if (loading) {
     return <LoadingOverlay visible={true} message="Loading book details..." />;
   }
+
+  const categories = book.categories
+  ? Array.isArray(book.categories)
+    ? book.categories
+    : book.categories.split(', ').map(cat => cat.trim())
+  : [];
 
   return (
     <>
@@ -397,29 +404,31 @@ const BookDetailsScreen = ({ navigation, route }) => {
               </View>
               {(book.copy_count || book.available_copies) && (
                 <>
-                  <View style={styles.detailRow}>
+                  {/* <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Copies:</Text>
                     <Text style={styles.detailValue}>{book.copy_count || 1}</Text>
-                  </View>
+                  </View> */}
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Available:</Text>
                     <Text style={styles.detailValue}>{book.available_copies || 0} of {book.copy_count || 1}</Text>
                   </View>
                 </>
               )}
-              {book.categories && book.categories.length > 0 && (
+              {categories.length > 0 && (
                 <View style={styles.categoriesContainer}>
                   <Text style={styles.detailLabel}>Categories:</Text>
                   <View style={styles.categoriesWrapper}>
-                    {(showAllCategories ? book.categories : book.categories.slice(0, 3)).map((category, index) => (
+                    {(showAllCategories ? categories : categories.slice(0, 3)).map((category, index) => (
                       <Chip key={index} style={styles.categoryChip} textStyle={styles.categoryChipText}>
                         {category}
                       </Chip>
                     ))}
-                    {book.categories.length > 3 && (
-                      <TouchableOpacity onPress={() => setShowAllCategories(!showAllCategories)} style={styles.showMoreButton}>
-                        <Text style={styles.showMoreButtonText}>{showAllCategories ? 'Show Less' : 'Show More'}</Text>
-                      </TouchableOpacity>
+                    {categories.length > 3 && (
+                      <View style={styles.showMoreContainer}>
+                        <TouchableOpacity onPress={() => setShowAllCategories(!showAllCategories)} style={styles.showMoreButton}>
+                          <Text style={styles.showMoreButtonText}>{showAllCategories ? 'Show Less' : 'Show More'}</Text>
+                        </TouchableOpacity>
+                      </View>
                     )}
                   </View>
                 </View>
@@ -628,6 +637,11 @@ const styles = StyleSheet.create({
   },
   categoryChipText: {
     fontSize: 12,
+  },
+  showMoreContainer:{
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   showMoreButton: {
     paddingVertical: 5,

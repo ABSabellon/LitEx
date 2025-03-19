@@ -25,19 +25,16 @@ export const getBookByIdentifier = async (type, id) => {
     const response = await axios.get(`${OPEN_LIBRARY_IDENTIFIER_URL}${type}/${identifier}.json`);
    
     if (!response.data.records || Object.keys(response.data.records).length === 0) {
-      throw new Error('Book not found.');
+      return null; // Book not found, return null instead of throwing an error
     }
 
     const firstRecordKey = Object.keys(response.data.records)[0];
     const bookData = response.data.records[firstRecordKey];
     
-    // console.log('authors :: ', bookData.data.authors)
     const transformedBook = {
       title: bookData.data?.title || '',
       full_title: bookData.details?.details?.full_title || '',
       authors: bookData.data?.authors ? bookData.data.authors.map(author => {
-        // Extract the OpenLibrary ID from the author URL
-        // URL format: http://openlibrary.org/authors/OL7115219A/Sarah_J._Maas
         const match = author.url && typeof author.url === 'string'
           ? author.url.match(/\/authors\/(OL\w+)/)
           : null;
@@ -47,14 +44,14 @@ export const getBookByIdentifier = async (type, id) => {
           openLibrary_id: openLibraryId
         };
       }) : [],
-      publisher: bookData.data?.publishers ? bookData.data.publishers.map(publisher => publisher.name):[],
+      publisher: bookData.data?.publishers ? bookData.data.publishers.map(publisher => publisher.name) : [],
       published_date: bookData.data?.publish_date || bookData.publishDates?.[0] || '',
-      publisher_place:bookData.data?.publish_places ? bookData.data.publish_places.map(places => places.name) : [],
+      publisher_place: bookData.data?.publish_places ? bookData.data.publish_places.map(places => places.name) : [],
       page_count: bookData.data?.number_of_pages || null,
       subjects: bookData.data?.subjects ? bookData.data.subjects.map(subject => subject.name) : [],
       weight: bookData.data?.weight || null,
       identifiers: bookData.data?.identifiers ? Object.fromEntries(Object.entries(bookData.data.identifiers).map(([key, value]) => [key, value[0]])) : {},
-      covers: bookData.data?.cover ? { cover_small: bookData.data.cover.small, cover_medium: bookData.data.cover.medium, cover_large: bookData.data.cover.large} : null,
+      covers: bookData.data?.cover ? { cover_small: bookData.data.cover.small, cover_medium: bookData.data.cover.medium, cover_large: bookData.data.cover.large } : null,
       openlibrary_url: bookData.recordURL || bookData.data?.url || '',
       work_key: bookData.details?.details?.works?.[0]?.key || '',
       series: bookData.details?.details?.series || [],
@@ -64,18 +61,14 @@ export const getBookByIdentifier = async (type, id) => {
     transformedBook.description = response2.data?.description?.value || response2.data?.description || '';
 
     const response3 = await axios.get(`${OPEN_LIBRARY_URL}${transformedBook.work_key}/ratings.json`);
-    transformedBook.ratings = response3.data
+    transformedBook.ratings = response3.data;
 
-    // console.log('response2 :: ', response2.data.description)
-    // Process the book data for AddBookScreen
     const processedBook = processBookForAddScreen(transformedBook);
     
     return processedBook;
-    // return null
-    
   } catch (error) {
     console.error('Error fetching book:', error.message || error);
-    throw error;
+    throw error; // Throw errors for network issues, etc.
   }
 };
 
@@ -98,7 +91,6 @@ export const getBookByBarcode = async (barcode) => {
     throw error;
   }
 };
-
 
 export const processBookForAddScreen = (bookData) => {
   if (!bookData) return null;
@@ -396,7 +388,6 @@ export const batchUploadBooks = async (books, currentUser) => {
 
     // Process each book
     for (const bookData of books) {
-      // Check if book already exists using identifiers
       const existingBook = await checkBookExists(bookData.identifiers || {});
       
       if (existingBook) {
@@ -405,22 +396,18 @@ export const batchUploadBooks = async (books, currentUser) => {
           id: existingBook.id, 
           message: 'Book already exists. Skipped.' 
         });
-        continue; // Skip to next book
+        continue;
       }
 
-      // Generate library code for a new book
       const libraryCode = generateLibraryCode(bookData, 1);
+      const authorText = bookData.authorsData?.map(author => author.name).join(', ') || bookData.author || 'Unknown';
 
       const cleanBookData = {
         book_info: {
-          authors: bookData.authorsData
-            ? bookData.authorsData.map(author => ({
-                name: author.name,
-                openLibrary_id: author.openLibrary_id
-              }))
-            : bookData.author
-              ? bookData.author.split(',').map(name => ({ name: name.trim() }))
-              : [],
+          authors: bookData.authorsData ? bookData.authorsData.map(author => ({
+            name: author.name,
+            openLibrary_id: author.openLibrary_id
+          })) : bookData.author?.split(',').map(name => ({ name: name.trim() })) || [],
           description: bookData.description || '',
           full_title: bookData.full_title || '',
           series: bookData.series || [],
@@ -470,14 +457,63 @@ export const batchUploadBooks = async (books, currentUser) => {
         }
       };
 
-      // Create a new document reference and add to batch
       const newDocRef = doc(booksRef);
       batch.set(newDocRef, cleanBookData);
       results.push({ id: newDocRef.id, ...cleanBookData });
+
+      // Save author details to Authors collection if OpenLibrary IDs are available
+      if (cleanBookData.book_info?.authors && Array.isArray(cleanBookData.book_info.authors)) {
+        await Promise.all(
+          cleanBookData.book_info.authors
+            .filter(author => author.openLibrary_id)
+            .map(async (author) => {
+              try {
+                await saveAuthorDetails(author.openLibrary_id);
+              } catch (authorError) {
+                console.error(`Error saving author ${author.name}:`, authorError);
+              }
+            })
+        );
+      }
     }
 
     // Commit the batch
     await batch.commit();
+
+    // Process QR codes after commit
+    for (const result of results) {
+      let authorText = '';
+      if (result.book_info.authors.length > 0) {
+        if (typeof result.book_info.authors[0] === 'object') {
+          authorText = result.book_info.authors.map(author => author.name).join(', ');
+        } else {
+          authorText = result.book_info.authors.join(', ');
+        }
+      }
+
+      const qrData = generateQRData(result.id, result.book_info.title, authorText, result.library_info.location);
+      const qrCodeBase64 = await generateQRAsBase64(qrData);
+
+      // Update with QR code
+      await updateDoc(doc(db, 'Books', result.id), {
+        'library_info.library_qr': qrCodeBase64,
+        'logs.qr_generated': {
+          generated_by: currentUser ? {
+            uid: currentUser.profile.uid,
+            email: currentUser.profile.email,
+            displayName: currentUser.profile.name || ''
+          } : {
+            uid: 'system',
+            email: 'system',
+            displayName: 'System'
+          },
+          generated_at: new Date()
+        }
+      });
+
+      result.library_info.library_qr = qrCodeBase64;
+    }
+
     return { success: true, results };
 
   } catch (error) {
@@ -487,218 +523,6 @@ export const batchUploadBooks = async (books, currentUser) => {
 };
 
 
-// // Uncomment below for allowing duplicate books
-// export const uploadBook = async (bookData, currentUser) => {
-//   try {
-//     // Check if book already exists using identifiers
-//     const existingBook = await checkBookExists(bookData.identifiers || {});
-    
-//     // Determine copy number (for library code)
-//     const copyNumber = existingBook ? (existingBook.stats?.copy_count || 1) + 1 : 1;
-    
-//     // Generate library code based on book metadata
-//     const libraryCode = generateLibraryCode(bookData, copyNumber);
-    
-//     const cleanBookData = {
-//           book_info:{
-//             authors: bookData.authorsData
-//               ? bookData.authorsData.map(author => ({
-//                   name: author.name,
-//                   openLibrary_id: author.openLibrary_id
-//                 }))
-//               : bookData.author
-//                 ? bookData.author.split(',').map(name => ({ name: name.trim() }))
-//                 : [],
-//             description: bookData.description || '',
-//             full_title: bookData.full_title || '',
-//             series: bookData.series || [],
-//             title: bookData.title || '',
-//           },
-//       publish_info:{
-//         publishers:bookData.publisher || [],
-//         published_date: bookData.published_date || '',
-//         publisher_place: bookData.publisher_place || [],
-//       },
-
-//       categories: bookData.categories || [],
-//       weight: bookData.weight || null,
-//       page_count: bookData.page_count || null,
-
-//       identifiers: bookData.identifiers || {},
-
-//       media:{
-//         covers: bookData.covers || null,
-//       },
-      
-//       status: 'available',
-//       notes: bookData.notes || '',
-//       edition: bookData.edition || '',
-      
-//       library_info:{
-//         openlibrary_url: bookData.openlibrary_url || '',
-//         work_key: bookData.work_key || '',
-//         library_qr:null,
-//         location: bookData.location || libraryCode,
-//       },
-      
-//       stats:{
-//         loan_count: 0,
-//         ratings: bookData.ratings || [],
-//         average_rating: 0,
-//         copy_count: 1, // Initialize copy count
-//         available_copies: 1, // Initialize available copies
-//       },
-
-//       logs: {
-//         created: {
-//           created_by: currentUser ? {
-//             uid: currentUser.profile.uid,
-//             email: currentUser.profile.email,
-//             displayName: currentUser.profile.name || ''
-//           } : {
-//             uid: 'system',
-//             email: 'system',
-//             displayName: 'System'
-//           },
-//           created_at: new Date()
-//         }
-//       }
-//     };
-    
-//     // If book exists, update copy count instead of adding new book
-//     if (existingBook) {
-//       const bookRef = doc(db, 'Books', existingBook.id);
-//       const currentStats = existingBook.stats || {};
-//       const currentCopyCount = currentStats.copy_count || 1;
-//       const currentAvailableCopies = currentStats.available_copies ||
-//         (existingBook.status === 'available' ? 1 : 0);
-      
-//       // Update the existing book with incremented copy count
-//       await updateDoc(bookRef, {
-//         stats: {
-//           ...currentStats,
-//           copy_count: currentCopyCount + 1,
-//           available_copies: currentAvailableCopies + 1,
-//         },
-//         logs: {
-//           ...existingBook.logs,
-//           copy_added: {
-//             added_by: currentUser ? {
-//               uid: currentUser.profile.uid,
-//               email: currentUser.profile.email,
-//               displayName: currentUser.profile.name || ''
-//             } : {
-//               uid: 'system',
-//               email: 'system',
-//               displayName: 'System'
-//             },
-//             added_at: new Date()
-//           }
-//         }
-//       });
-      
-//       // Return the updated book
-//       return {
-//         id: existingBook.id,
-//         ...existingBook,
-//         stats: {
-//           ...currentStats,
-//           copy_count: currentCopyCount + 1,
-//           available_copies: currentAvailableCopies + 1,
-//         }
-//       };
-//     }
-    
-//     // Add new book to Firestore if no duplicate found
-//     const booksRef = collection(db, 'Books');
-//     const bookDoc = await addDoc(booksRef, cleanBookData);
-    
-//     // Save author details to Authors collection if OpenLibrary IDs are available
-//     if (cleanBookData.book_info?.authors && Array.isArray(cleanBookData.book_info.authors)) {
-//       // Process authors in parallel using Promise.all
-//       await Promise.all(
-//         cleanBookData.book_info.authors
-//           .filter(author => author.openLibrary_id) // Only process authors with OpenLibrary IDs
-//           .map(async (author) => {
-//             try {
-//               await saveAuthorDetails(author.openLibrary_id);
-//             } catch (authorError) {
-//               // Log error but continue with book creation
-//               console.error(`Error saving author ${author.name}:`, authorError);
-//             }
-//           })
-//       );
-//     }
-    
-//     // Generate and save QR code
-//     const book_id = bookDoc.id;
-//     try {
-//       // Generate QR code data for the book
-//       // Handle author extraction from the new format with name and openLibrary_id
-//       let authorText = '';
-//       if (cleanBookData.book_info.authors.length > 0) {
-//         if (typeof cleanBookData.book_info.authors[0] === 'object') {
-//           // Authors are objects with name property
-//           authorText = cleanBookData.book_info.authors.map(author => author.name).join(', ');
-//         } else {
-//           // Legacy format where authors are strings
-//           authorText = cleanBookData.book_info.authors.join(', ');
-//         }
-//       }
-      
-//       const qrData = generateQRData(book_id, cleanBookData.book_info.title, authorText, cleanBookData.location);
-      
-//       // Generate QR code as SVG data URL
-//       const qrCodeBase64 = await generateQRAsBase64(qrData);
-      
-//       // Update the book with QR code
-//       await updateDoc(doc(db, 'Books', book_id), {
-//         library_info: {
-//           ...cleanBookData.library_info,
-//           library_qr: qrCodeBase64,
-//         },
-//         logs: {
-//           ...cleanBookData.logs,
-//           qr_generated: {
-//             generated_by: currentUser ? {
-//               uid: currentUser.profile.uid,
-//               email: currentUser.profile.email,
-//               displayName: currentUser.profile.name || ''
-//             } : {
-//               uid: 'system',
-//               email: 'system',
-//               displayName: 'System'
-//             },
-//             generated_at: new Date()
-//           }
-//         }
-//       });
-      
-//       // Add QR to the return data
-//       cleanBookData.library_info.library_qr = qrCodeBase64;
-//     } catch (qrError) {
-//       console.error('Error generating QR code during book creation:', qrError);
-      
-//       // Delete the book document since QR generation failed
-//       try {
-//         await deleteDoc(doc(db, 'Books', book_id));
-//         // console.log('Book document deleted after QR generation failure');
-//       } catch (deleteError) {
-//         console.error('Error deleting book document after QR generation failure:', deleteError);
-//       }
-      
-//       // Rethrow the error to indicate that book addition failed
-//       throw new Error('Failed to add book: QR code generation failed');
-//     }
-    
-//     return { id: bookDoc.id, ...cleanBookData };
-
-//     // return null;
-//   } catch (error) {
-//     console.error('Error adding book to library:', error);
-//     throw error;
-//   }
-// };
 
 // Helper function to get the appropriate cover image URL from any book structure
 export const getBookCoverUrl = (book, size = 'medium') => {

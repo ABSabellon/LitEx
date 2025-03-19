@@ -13,29 +13,29 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { TextInput, Button, Title } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getBookByIdentifier,batchUploadBooks } from '../../services/bookService';
+import { getBookByIdentifier, batchUploadBooks } from '../../services/bookService';
 import { useAuth } from '../../context/AuthContext';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { Provider as PaperProvider, Drawer as PaperDrawer } from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 import ScannedBook from '../../components/Cards/ScannedBook';
+import AddBookForm from '../../components/Forms/AddBookForm';
 
 const { height } = Dimensions.get('window');
 
 const ScanBookScreen = ({ navigation, route }) => {
   const { currentUser } = useAuth();
-
   const [permission, requestPermission] = useCameraPermissions();
   const [isbn, setIsbn] = useState('');
   const [scanned, setScanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingType, setLoadingType] = useState('');
-
   const [alertShown, setAlertShown] = useState(false);
   const [scannedBooks, setScannedBooks] = useState([]);
   const isProcessingRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnimation = useRef(new Animated.Value(0)).current;
-
+  const [searchInput, setSearchInput] = useState('');
+  const [searchedBook, setSearchedBook] = useState({});
   const [addManually, setAddManually] = useState(false);
 
   useEffect(() => {
@@ -49,15 +49,11 @@ const ScanBookScreen = ({ navigation, route }) => {
   }, [permission]);
 
   const handleBarCodeScanned = async ({ data, type }) => {
-    if (isProcessingRef.current) {
-      return;
-    }
-
+    if (isProcessingRef.current) return;
     isProcessingRef.current = true;
     setScanned(true);
     setLoading(true);
     setLoadingType('scanning');
-
     try {
       const isbn = data;
       setIsbn(isbn);
@@ -74,11 +70,6 @@ const ScanBookScreen = ({ navigation, route }) => {
           isProcessingRef.current = false;
         }
       }]);
-    } finally {
-      if (!isProcessingRef.current) {
-        setLoading(false);
-        setLoadingType('');
-      }
     }
   };
 
@@ -88,6 +79,15 @@ const ScanBookScreen = ({ navigation, route }) => {
       if (book) {
         setScannedBooks((prevBooks) => [...prevBooks, book]);
         setLoading(false);
+      }else{
+        Alert.alert('Error', 'Failed to process the ISBN. Please try again.', [{
+          text: 'OK',
+          onPress: () => {
+            setScanned(false);
+            setIsbn('');
+            isProcessingRef.current = false;
+          }
+        }]);
       }
     } catch (error) {
       console.error('Error processing ISBN:', error);
@@ -131,25 +131,91 @@ const ScanBookScreen = ({ navigation, route }) => {
     outputRange: [height * 0.75, 0],
   });
 
-  // Helper function to get unique books with their counts
+  const handleSearchSubmit = async () => {
+    setIsbn(searchInput.trim());
+    setLoading(true);
+    setLoadingType('searching');
+    if (addManually) {
+      if (searchInput.trim()) {
+        try {
+          const book = await getBookByIdentifier('isbn', searchInput.trim());
+          if (book) {
+            setSearchedBook(book);
+            setSearchInput('');
+            setLoading(false);
+          } else {
+            Alert.alert('Book Not Found', 'No book found with this ISBN. Please try again.', [{
+              text: 'OK',
+              onPress: () => {
+                setSearchInput('');
+                setIsbn('');
+              }
+            }]);
+          }
+        } catch (error) {
+          console.error('Error processing ISBN:', error);
+          Alert.alert('Error', 'Failed to process the ISBN. Please try again.', [{
+            text: 'OK',
+            onPress: () => {
+              setScanned(false);
+              setIsbn('');
+              setSearchInput('');
+              isProcessingRef.current = false;
+            }
+          }]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    } else {
+      console.log('Searching scanned books for:', searchInput.trim());
+    }
+  };
+
+  useEffect(() => {
+    // console.log('searchedBook :: ', searchedBook);
+  }, [searchedBook]);
+
+  const handleAddBook = async (data) => {
+    setLoading(true);
+    setLoadingType('adding');
+    try{
+      if(data){
+        setScannedBooks((prevBooks) => [...prevBooks, data]);
+        setAddManually(false);
+        setSearchedBook({});
+        setSearchInput('');
+        setLoading(false);
+      }
+    }catch(error){
+      console.error('Error adding book:', error); 
+      Alert.alert('Error', 'Failed to process the ISBN. Please try again.', [{
+        text: 'OK',
+        onPress: () => {
+          setSearchedBook({});
+          setSearchInput('');
+        }
+      }]);
+    }finally{
+      setLoading(false);
+    }
+    // console.log('handleAddBook was clicked',data);
+  };
+
   const getUniqueBooksWithCounts = () => {
     const seenIdentifiers = new Set();
     const uniqueBooks = [];
     const copyCounts = new Map();
-
     scannedBooks.forEach((book) => {
       const ids = book.identifiers || {};
       const identifierKey =
         ids.isbn_13 || ids.isbn_10 || ids.openlibrary || JSON.stringify(book);
-
       copyCounts.set(identifierKey, (copyCounts.get(identifierKey) || 0) + 1);
-
       if (!seenIdentifiers.has(identifierKey)) {
         seenIdentifiers.add(identifierKey);
         uniqueBooks.push(book);
       }
     });
-
     return uniqueBooks.map((book) => ({
       book,
       copyCount: copyCounts.get(
@@ -163,29 +229,22 @@ const ScanBookScreen = ({ navigation, route }) => {
 
   const uploadBooks = async () => {
     if (loading) return;
-  
     setLoading(true);
     setLoadingType('uploading');
-  
     try {
       const result = await batchUploadBooks(scannedBooks, currentUser);
-      
       if (result.success) {
         result.results.forEach(res => {
-          if (res.message) {
-            console.log(res.message); 
-          } else {
-            console.log(`Book uploaded successfully with ID: ${res.id}`);
-          }
+          if (res.message) console.log(res.message);
+          else console.log(`Book uploaded successfully with ID: ${res.id}`);
         });
-        
         setScannedBooks([]);
         Alert.alert('Success', 'Books uploaded successfully!');
       } else {
         throw new Error(result.error || 'Batch upload failed');
       }
     } catch (error) {
-      console.error('Batch upload process failed:', error);
+      // console.error('Batch upload process failed:', error);
       Alert.alert('Error', 'Failed to upload books. Please try again.');
     } finally {
       setLoading(false);
@@ -222,12 +281,11 @@ const ScanBookScreen = ({ navigation, route }) => {
 
   const loadingMessage = () => {
     switch (loadingType) {
-      case 'uploading':
-        return 'Uploading please wait...';
-      case 'scanning':
-        return `Locating ISBN: ${isbn} in OpenLibrary...`;
-      default:
-        return ''; // Shouldn't happen when loading is true
+      case 'uploading': return 'Uploading please wait...';
+      case 'adding': return 'Adding book please wait...';
+      case 'scanning': return `Locating ISBN: ${isbn} in OpenLibrary...`;
+      case 'searching': return `Searching ISBN: ${isbn} in OpenLibrary...`;
+      default: return '';
     }
   };
 
@@ -237,35 +295,24 @@ const ScanBookScreen = ({ navigation, route }) => {
         <CameraView
           style={styles.camera}
           facing="back"
-          barcodeScannerSettings={{
-            barcodeTypes: ['ean13'],
-          }}
+          barcodeScannerSettings={{ barcodeTypes: ['ean13'] }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         />
-
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>Scan Book ISBN Barcode</Text>
           <Text style={styles.subHeaderText}>Position Barcode within frame</Text>
         </View>
-
         {scanned && !loading && (
           <TouchableOpacity style={styles.scanButton} onPress={resetScan}>
             <MaterialCommunityIcons name="qrcode-scan" size={28} color="#FFFFFF" />
             <Text style={styles.scanButtonText}>Scan Again</Text>
           </TouchableOpacity>
         )}
-
         <LoadingOverlay visible={loading} message={loadingMessage()} />
-
-        {/* Drawer Button - Stationary */}
         <View style={styles.openDrawerButton}>
           <TouchableOpacity onPress={openDrawer}>
             <View style={styles.buttonContainer}>
-              <MaterialCommunityIcons
-                name="menu"
-                size={28}
-                color={'#FFFFFF'}
-              />
+              <MaterialCommunityIcons name="menu" size={28} color={'#FFFFFF'} />
               {!drawerOpen && scannedBooks.length > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>
@@ -276,8 +323,6 @@ const ScanBookScreen = ({ navigation, route }) => {
             </View>
           </TouchableOpacity>
         </View>
-
-        {/* Drawer - Opens from bottom */}
         {drawerOpen && (
           <>
             <TouchableOpacity style={styles.overlay} onPress={closeDrawer} />
@@ -290,19 +335,10 @@ const ScanBookScreen = ({ navigation, route }) => {
               <View style={styles.drawerContent}>
                 <View style={styles.drawerSection}>
                   <Title style={styles.drawerTitle}>{scannedBooks.length} Scanned Books</Title>
-
-                  {/* Search Input with Icon */}
                   <View style={styles.searchContainer}>
                     {addManually && (
-                      <TouchableOpacity 
-                        style={styles.chevronButton}
-                        onPress={() => setAddManually(false)}
-                      >
-                        <MaterialCommunityIcons 
-                          name="chevron-left" 
-                          size={32} 
-                          color="#4A90E2" 
-                        />
+                      <TouchableOpacity style={styles.chevronButton} onPress={() => setAddManually(false)}>
+                        <MaterialCommunityIcons name="chevron-left" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                     <TextInput
@@ -312,29 +348,27 @@ const ScanBookScreen = ({ navigation, route }) => {
                       contentStyle={styles.searchContent}
                       left={<TextInput.Icon icon="magnify" />}
                       outlineStyle={styles.searchOutline}
+                      value={searchInput}
+                      onChangeText={(text) => setSearchInput(text)}
+                      onSubmitEditing={handleSearchSubmit}
+                      returnKeyType="search"
                     />
                     {!addManually && (
-                      <TouchableOpacity 
-                        style={styles.plusButton}
-                        onPress={() => setAddManually(true)}
-                      >
-                        <MaterialCommunityIcons 
-                          name="plus" 
-                          size={32} 
-                          color="#4A90E2" 
-                        />
+                      <TouchableOpacity style={styles.plusButton} onPress={() => setAddManually(true)}>
+                        <MaterialCommunityIcons name="plus" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                   </View>
-
-                  {/* Scanned Books */}
-                  <ScrollView>
+                  <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    style={styles.scrollView}
+                  >
                     {addManually ? (
-                      <TouchableOpacity style={styles.manualAddContainer}>
-                        <MaterialCommunityIcons name="book-plus" size={32} color="#4A90E2" />
-                        <Text style={styles.manualAddText}>Add Manually</Text>
-                      </TouchableOpacity>
-                    ) :scannedBooks.length > 0 ? (
+                      <AddBookForm
+                        initialBookData={searchedBook}
+                        handleAddBook={handleAddBook} // Changed onSubmit to handleAddBook to match prop name
+                      />
+                    ) : scannedBooks.length > 0 ? (
                       getUniqueBooksWithCounts().map(({ book, copyCount }, index) => (
                         <ScannedBook
                           key={book.identifiers?.isbn_13 || book.identifiers?.isbn_10 || index}
@@ -353,14 +387,14 @@ const ScanBookScreen = ({ navigation, route }) => {
                                   (bIds.openlibrary && bIds.openlibrary === bookIds.openlibrary);
                                 if (isMatch) {
                                   found = true;
-                                  return false; // Remove this instance
+                                  return false;
                                 }
                                 return true;
                               });
                             });
                           }}
                           onAdd={() => {
-                            setScannedBooks((prev) => [...prev, { ...book }]); // Add a duplicate of the book
+                            setScannedBooks((prev) => [...prev, { ...book }]);
                           }}
                         />
                       ))
@@ -369,8 +403,6 @@ const ScanBookScreen = ({ navigation, route }) => {
                     )}
                   </ScrollView>
                 </View>
-
-                {/* Action Buttons: Delete All and Add Books */}
                 {!addManually && scannedBooks.length > 0 && (
                   <View style={styles.actionButtonsContainer}>
                     <TouchableOpacity
@@ -505,14 +537,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
   },
   drawerContent: {
-    flex: 1, 
+    flex: 1,
     flexDirection: 'column',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
   },
   drawerSection: {
     padding: 10,
-    flex: 1, 
-    height:'100%',
+    flex: 1,
   },
   drawerTitle: {
     fontSize: 13,
@@ -546,31 +577,24 @@ const styles = StyleSheet.create({
   searchOutline: {
     borderRadius: 20,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20, // Ensure padding at the bottom for scrollable content
+  },
   noDataText: {
     textAlign: 'center',
     color: '#999999',
     marginVertical: 20,
     fontStyle: 'italic',
   },
-  manualAddContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    marginTop: 20,
-    height:'100%',
-  },
-  manualAddText: {
-    fontSize: 16,
-    color: '#4A90E2',
-    marginLeft: 10,
-    fontWeight: '500',
-  },
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    paddingBottom: 15, // Space from bottom edge
+    paddingBottom: 15,
     paddingTop: 10,
   },
   actionButton: {
@@ -583,39 +607,25 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   deleteAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 2, // Increased for visibility
-    borderColor: '#FF3B30', // Red outline
-    borderRadius: 20,
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: 'transparent', // Explicitly no fill
+    borderWidth: 2,
+    borderColor: '#FF3B30',
+    backgroundColor: 'transparent',
   },
   addBooksButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 2, // Increased for visibility
-    borderColor: '#4A90E2', // Blue outline
-    borderRadius: 20,
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: 'transparent', // Explicitly no fill
+    borderWidth: 2,
+    borderColor: '#4A90E2',
+    backgroundColor: 'transparent',
   },
   deleteAllButtonText: {
-    color: '#FF3B30', // Match outline color
+    color: '#FF3B30',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,
   },
   addBooksButtonText: {
-    color: '#4A90E2', // Match outline color
+    color: '#4A90E2',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,

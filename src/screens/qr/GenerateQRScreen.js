@@ -136,9 +136,10 @@ const GenerateQRScreen = ({ navigation, route }) => {
             <View style={styles.saveDetailsSection}>
               <Text style={styles.saveBookTitle}>{book.title}</Text>
               <Text style={styles.saveSubtitle}>by {book.author}</Text>
+
+              <Text style={styles.saveInfoText}>{book.library_info?.location} </Text>
             </View>
           </View>
-          <Text style={styles.saveInfoText}>{book.library_info?.location} </Text>
       
         </ViewShot>
       </View>
@@ -380,6 +381,8 @@ const styles = StyleSheet.create({
     height: '100%',
     borderWidth: 1,
     borderColor: '#000',
+    borderRadius: 10,
+    padding:5,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -388,6 +391,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     width: '100%',
     height: '100%',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -407,8 +413,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   saveTitle: {
-    fontSize: 20,
-    fontWeight: 'bold', 
+    fontSize: 18,
+    fontWeight: '500', 
     marginBottom: 10,
   },
   saveBookTitle: {  

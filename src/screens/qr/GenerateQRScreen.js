@@ -102,7 +102,7 @@ const GenerateQRScreen = ({ navigation, route }) => {
       }
   
       await MediaLibrary.saveToLibraryAsync(uri);
-      console.log('Image saved to Photo Library');
+      console.log('Image saved to Photo Library ::', uri);
   
       setPreviewVisible(false);
   
@@ -117,7 +117,7 @@ const GenerateQRScreen = ({ navigation, route }) => {
       <View style={styles.saveLayoutContainer}>
 
         <ViewShot style={styles.viewShotLayout} ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
-          <Text style={styles.saveTitle}>Property of {currentUser}</Text>
+          <Text style={styles.saveTitle}>Property of {currentUser.display_name}</Text>
           <View style={styles.saveLayout}>
             <View style={styles.saveQrSection}>
               <QRCode

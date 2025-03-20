@@ -17,8 +17,8 @@ import { getBookByIdentifier, batchUploadBooks } from '../../services/bookServic
 import { useAuth } from '../../context/AuthContext';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { Provider as PaperProvider } from 'react-native-paper';
-import ScannedBook from '../../components/Cards/ScannedBook';
-import AddBookForm from '../../components/Forms/AddBookForm';
+import ScannedBook from '../../components/cards/ScannedBook';
+import AddBookForm from '../../components/forms/AddBookForm';
 
 const { height } = Dimensions.get('window');
 
@@ -295,6 +295,8 @@ const ScanBookScreen = ({ navigation, route }) => {
         <CameraView
           style={styles.camera}
           facing="back"
+          flashMode="torch"
+          // enableTorch={true}
           barcodeScannerSettings={{ barcodeTypes: ['ean13'] }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         />
@@ -496,7 +498,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     padding: 10,
-    zIndex: 10,
+    zIndex: 5,
   },
   buttonContainer: {
     position: 'relative',
@@ -535,6 +537,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    zIndex: 10,
   },
   drawerContent: {
     flex: 1,

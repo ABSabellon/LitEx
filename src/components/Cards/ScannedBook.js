@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getBookCoverUrl } from '../../services/bookService';
 
 const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
   const {
@@ -12,7 +13,6 @@ const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
   } = data;
 
   const authorName = authors.length > 0 ? authors[0].name : 'Unknown Author';
-  const coverImage = covers.cover_medium || 'https://via.placeholder.com/80';
   const ratingAverage = ratings.summary?.average || 0;
 
   useEffect(() => {
@@ -23,11 +23,17 @@ const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
   return (
     <View style={styles.card}>
       {/* Left: Cover Image */}
-      <Image
-        source={{ uri: coverImage }}
-        style={styles.coverImage}
-        resizeMode="cover"
-      />
+      {getBookCoverUrl(book) ? (
+        <Image
+          source={{ uri: getBookCoverUrl(book) }}
+          style={styles.bookCover}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={styles.bookCoverPlaceholder}>
+          <MaterialCommunityIcons name="book-open-page-variant" size={40} color="#CCCCCC" />
+        </View>
+      )}
 
       {/* Middle: Book Details */}
       <View style={styles.detailsContainer}>

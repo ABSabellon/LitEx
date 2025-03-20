@@ -18,7 +18,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getBookById } from '../../services/bookService';
 import { batchLoanBooks } from '../../services/loanService';
 import { Provider as PaperProvider } from 'react-native-paper';
-import ScannedBook from '../../components/Cards/ScannedBook';
+import ScannedBook from '../../components/cards/ScannedBook';
 
 const { height } = Dimensions.get('window');
 

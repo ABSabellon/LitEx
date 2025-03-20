@@ -14,7 +14,6 @@ import { TextInput, Button, Divider, Chip, HelperText } from 'react-native-paper
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { uploadBook } from '../../services/bookService';
 import { generateLibraryCode, explainLibraryCode } from '../../utils/libraryCodeGenerator';
 
 const AddBookForm = ({ 
@@ -22,7 +21,6 @@ const AddBookForm = ({
   initialBookData = null, 
   handleAddBook = () => {}, 
 }) => {
-  const [bookAdded, setBookAdded] = useState(false);
   const [authorChips, setAuthorChips] = useState([]);
   const [categoryChips, setCategoryChips] = useState([]);
   const [newAuthor, setNewAuthor] = useState('');
@@ -54,7 +52,6 @@ const AddBookForm = ({
         image_url: initialBookData.image_url || null,
         covers: initialBookData.covers || null,
         notes: initialBookData.notes || '',
-        edition: initialBookData.edition || '',
         openlibrary_url: initialBookData.openlibrary_url || '',
         work_key: initialBookData.work_key || '',
         series: initialBookData.series || [],
@@ -116,7 +113,6 @@ const AddBookForm = ({
     }).nullable(),
     ratings: Yup.mixed().nullable(),
     notes: Yup.string(),
-    edition: Yup.string(),
     openlibrary_url: Yup.string().url().nullable(),
     work_key: Yup.string().nullable(),
     series: Yup.array().of(Yup.string()),
@@ -211,7 +207,6 @@ const AddBookForm = ({
           image_url: null,
           covers: null,
           notes: '',
-          edition: '',
           openlibrary_url: '',
           work_key: '',
           series: [],

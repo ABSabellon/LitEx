@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { getBookLoanHistory } from '../../services/loanService';
-import LoanedBook from '../../components/Cards/LoanedBook';
+import LoanedBook from '../../components/cards/LoanedBook';
 
 const LoanedHistoryScreen = ({navigation, route}) => {
   const [borrows, setBorrows] = useState([]);

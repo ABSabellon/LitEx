@@ -25,7 +25,7 @@ import {
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getAllBooks, deleteBook, getBookCoverUrl } from '../../services/bookService';
-import BookCard from '../../components/Cards/BookCard';
+import BookCard from '../../components/cards/BookCard';
 
 const BookListScreen = ({ navigation }) => {
   const [books, setBooks] = useState([]);

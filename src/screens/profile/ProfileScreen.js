@@ -24,7 +24,7 @@ const ProfileScreen = ({ navigation }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
-  const { currentUser, getUserProfile, signOut, userRole, isSuperAdmin } = useAuth();
+  const { currentUser, getUserProfile, signOut, userRole } = useAuth();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -121,21 +121,6 @@ const ProfileScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('ManageInvites')}
                 style={styles.listItem}
               />
-              
-              {isSuperAdmin() && (
-                <>
-                  <Divider />
-                  
-                  <List.Item
-                    title="Manage Administrators"
-                    description="Promote regular admins to super admins"
-                    left={props => <List.Icon {...props} icon="shield-account" color="#4A90E2" />}
-                    right={props => <List.Icon {...props} icon="chevron-right" />}
-                    onPress={() => navigation.navigate('ManageAdmins')}
-                    style={styles.listItem}
-                  />
-                </>
-              )}
               
               <Divider />
               

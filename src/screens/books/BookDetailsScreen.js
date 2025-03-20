@@ -34,7 +34,7 @@ import { getBookLoanHistory, loanBook } from '../../services/loanService';
 import { createGuestUser, checkUserExists, getGuestByContact } from '../../services/userService';
 import { formatPhilippinesNumber, isValidPhilippinesNumber } from '../../utils/phoneUtils';
 import StarRating from '../../components/StarRating';
-import LoanedBook from '../../components/Cards/LoanedBook';
+import LoanedBook from '../../components/cards/LoanedBook';
 
 const BookDetailsScreen = ({ navigation, route }) => {
   const [book, setBook] = useState(null);

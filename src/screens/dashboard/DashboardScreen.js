@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import {getAllBooks,getLoanedBooks,getMostLoanedBooks} from '../../services/bookService';
 import {getActiveLoans, getOverdueLoans} from '../../services/loanService';
-import FeaturedBook from '../../components/Cards/FeaturedBook';
+import FeaturedBook from '../../components/cards/FeaturedBook';
 
 const DashboardScreen = ({ navigation }) => {
   const { currentUser } = useAuth();

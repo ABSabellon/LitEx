@@ -48,7 +48,7 @@ export const getBookByIdentifier = async (type, id) => {
       published_date: bookData.data?.publish_date || bookData.publishDates?.[0] || '',
       publisher_place: bookData.data?.publish_places ? bookData.data.publish_places.map(places => places.name) : [],
       page_count: bookData.data?.number_of_pages || null,
-      subjects: bookData.data?.subjects ? bookData.data.subjects.map(subject => subject.name) : [],
+      categories: bookData.data?.subjects ? bookData.data.subjects.map(subject => subject.name) : [],
       weight: bookData.data?.weight || null,
       identifiers: bookData.data?.identifiers ? Object.fromEntries(Object.entries(bookData.data.identifiers).map(([key, value]) => [key, value[0]])) : {},
       covers: bookData.data?.cover ? { cover_small: bookData.data.cover.small, cover_medium: bookData.data.cover.medium, cover_large: bookData.data.cover.large } : null,
@@ -63,8 +63,9 @@ export const getBookByIdentifier = async (type, id) => {
     const response3 = await axios.get(`${OPEN_LIBRARY_URL}${transformedBook.work_key}/ratings.json`);
     transformedBook.ratings = response3.data;
 
-    const processedBook = processBookForAddScreen(transformedBook);
+    // const processedBook = processBookForAddScreen(transformedBook);
     
+    console.log('processedBook :: ', processedBook);
     return processedBook;
   } catch (error) {
     console.error('Error fetching book:', error.message || error);
@@ -115,10 +116,6 @@ export const processBookForAddScreen = (bookData) => {
     else if (processedBook.authors.length > 0) {
       processedBook.author = processedBook.authors.join(', ');
     }
-  }
-  
-  if (processedBook.subjects && Array.isArray(processedBook.subjects)) {
-    processedBook.categories = processedBook.subjects;
   }
   
   return processedBook;
@@ -296,90 +293,6 @@ export const checkBookExists = async (identifiers) => {
   }
 };
 
-export const uploadBook = async (bookData, currentUser) => {
-  try {
-    // Check if book already exists using identifiers
-    const existingBook = await checkBookExists(bookData.identifiers || {});
-    
-    // If book exists, return a message instead of throwing an error
-    if (existingBook) {
-      console.warn(`Book already exists with ID: ${existingBook.id}. Skipping upload.`);
-      return { id: existingBook.id, message: 'Book already exists. Skipped.' };
-    }
-
-    // Generate library code for a new book (copyNumber is always 1 since duplicates aren't allowed)
-    const libraryCode = generateLibraryCode(bookData, 1);
-
-    const cleanBookData = {
-      book_info: {
-        authors: bookData.authorsData
-          ? bookData.authorsData.map(author => ({
-              name: author.name,
-              openLibrary_id: author.openLibrary_id
-            }))
-          : bookData.author
-            ? bookData.author.split(',').map(name => ({ name: name.trim() }))
-            : [],
-        description: bookData.description || '',
-        full_title: bookData.full_title || '',
-        series: bookData.series || [],
-        title: bookData.title || '',
-      },
-      publish_info: {
-        publishers: bookData.publisher || [],
-        published_date: bookData.published_date || '',
-        publisher_place: bookData.publisher_place || [],
-      },
-      categories: bookData.categories || [],
-      weight: bookData.weight || null,
-      page_count: bookData.page_count || null,
-      identifiers: bookData.identifiers || {},
-      media: {
-        covers: bookData.covers || null,
-      },
-      status: 'available',
-      notes: bookData.notes || '',
-      edition: bookData.edition || '',
-      library_info: {
-        openlibrary_url: bookData.openlibrary_url || '',
-        work_key: bookData.work_key || '',
-        library_qr: null,
-        location: bookData.location || libraryCode,
-      },
-      stats: {
-        loan_count: 0,
-        ratings: bookData.ratings || [],
-        average_rating: 0,
-        copy_count: 1,
-        available_copies: 1,
-      },
-      logs: {
-        created: {
-          created_by: currentUser ? {
-            uid: currentUser.profile.uid,
-            email: currentUser.profile.email,
-            displayName: currentUser.profile.name || ''
-          } : {
-            uid: 'system',
-            email: 'system',
-            displayName: 'System'
-          },
-          created_at: new Date()
-        }
-      }
-    };
-
-    // Add new book to Firestore since no duplicate was found
-    const booksRef = collection(db, 'Books');
-    const bookDoc = await addDoc(booksRef, cleanBookData);
-
-    return { id: bookDoc.id, ...cleanBookData };
-  } catch (error) {
-    console.error('Error adding book to library:', error);
-    return { error: error.message };
-  }
-};
-
 export const batchUploadBooks = async (books, currentUser) => {
   try {
     const batch = writeBatch(db);
@@ -400,8 +313,7 @@ export const batchUploadBooks = async (books, currentUser) => {
       }
 
       const libraryCode = generateLibraryCode(bookData, 1);
-      const authorText = bookData.authorsData?.map(author => author.name).join(', ') || bookData.author || 'Unknown';
-
+      
       const cleanBookData = {
         book_info: {
           authors: bookData.authorsData ? bookData.authorsData.map(author => ({
@@ -427,7 +339,6 @@ export const batchUploadBooks = async (books, currentUser) => {
         },
         status: 'available',
         notes: bookData.notes || '',
-        edition: bookData.edition || '',
         library_info: {
           openlibrary_url: bookData.openlibrary_url || '',
           work_key: bookData.work_key || '',

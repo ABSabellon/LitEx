@@ -88,7 +88,7 @@ const styles = {
     width: 150,
     marginHorizontal: 5,
     elevation: 3,
-    overflow: 'hidden',
+    // overflow: 'hidden',
   },
   featuredCardImage: {
     height: 200,

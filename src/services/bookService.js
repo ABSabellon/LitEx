@@ -63,7 +63,7 @@ export const getBookByIdentifier = async (type, id) => {
     const response3 = await axios.get(`${OPEN_LIBRARY_URL}${transformedBook.work_key}/ratings.json`);
     transformedBook.ratings = response3.data;
 
-    // const processedBook = processBookForAddScreen(transformedBook);
+    const processedBook = processBookForAddScreen(transformedBook);
     
     console.log('processedBook :: ', processedBook);
     return processedBook;

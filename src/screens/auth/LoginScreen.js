@@ -37,6 +37,7 @@ const LoginScreen = ({ navigation }) => {
   };
   
   useEffect(() => {
+    console.log('LoginScreen mounted');
     return () => {
       setLoading(false);
     };

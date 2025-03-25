@@ -6,8 +6,7 @@ module.exports = {
     "./app/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}"
   ],
-//   presets: [require("nativewind/tailwind")],
-presets: [require("nativewind/preset")],
+  presets: [require("nativewind/preset")],
   theme: {
     extend: {
       colors: {

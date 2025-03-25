@@ -40,7 +40,8 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
-      ]
+      ],
+      "expo-barcode-scanner"
     ]
   }
 }

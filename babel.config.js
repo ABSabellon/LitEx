@@ -1,4 +1,4 @@
-module.exports = function(api) {
+module.exports = function (api) {
   api.cache(true);
   return {
     presets: [
@@ -6,22 +6,15 @@ module.exports = function(api) {
       "nativewind/babel",
     ],
     plugins: [
-      'nativewind/babel',
-      [
-        'module:react-native-dotenv',
-        {
-          envName: 'APP_ENV',
-          moduleName: '@env',
-          path: '.env',
-          blocklist: null,
-          allowlist: null,
-          safe: false,
-          allowUndefined: true,
-          verbose: false,
-        }
-      ],
-      'react-native-reanimated/plugin'
-    ],
+      ["react-native-reanimated/plugin"],
+      ["module:react-native-dotenv", {
+        envName: 'APP_ENV',
+        moduleName: '@env',
+        path: '.env',
+        safe: false,
+        allowUndefined: true
+      }]
+    ]
   };
 };
 

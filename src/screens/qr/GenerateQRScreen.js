@@ -1,8 +1,7 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   ActivityIndicator,
   Alert,
@@ -13,7 +12,7 @@ import {
   Dimensions,
   Modal
 } from 'react-native';
-import ViewShot, { captureRef }  from 'react-native-view-shot';
+import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Card, Title, Paragraph, Button, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
@@ -27,26 +26,22 @@ const GenerateQRScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [qrRef, setQrRef] = useState(null);
   const [hasMediaPermission, setHasMediaPermission] = useState(null);
-  const [previewVisible, setPreviewVisible] = useState(false); 
+  const [previewVisible, setPreviewVisible] = useState(false);
   const viewShotRef = useRef(null);
 
   const { currentUser } = useAuth();
-  
-  // Get book ID from route params
   const book_id = route.params?.book_id;
-  
-  // Load book data
+
+  // Fetch book data
   useEffect(() => {
     const fetchBook = async () => {
       if (!book_id) {
         navigation.goBack();
         return;
       }
-      
       try {
         setLoading(true);
         const bookData = await getBookById(book_id);
-        
         if (bookData) {
           setBook(bookData);
         } else {
@@ -61,11 +56,10 @@ const GenerateQRScreen = ({ navigation, route }) => {
         setLoading(false);
       }
     };
-    
     fetchBook();
   }, [book_id]);
-  
-  // Check for media library permissions
+
+  // Check media library permissions
   useEffect(() => {
     (async () => {
       const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -73,16 +67,13 @@ const GenerateQRScreen = ({ navigation, route }) => {
     })();
   }, []);
 
-  // Save QR code
+  // Handle QR code save
   const handleSaveQR = async () => {
-   
     try {
-
       setPreviewVisible(true);
-
     } catch (error) {
-      console.error('Error show Label preview:', error);
-      Alert.alert('Error', 'Failed to show Label preview');
+      console.error('Error showing label preview:', error);
+      Alert.alert('Error', 'Failed to show label preview');
     }
   };
 
@@ -100,12 +91,9 @@ const GenerateQRScreen = ({ navigation, route }) => {
         setPreviewVisible(false);
         return;
       }
-  
       await MediaLibrary.saveToLibraryAsync(uri);
       console.log('Image saved to Photo Library ::', uri);
-  
       setPreviewVisible(false);
-  
       Alert.alert('Success', 'QR code label saved to your Photo Library!');
     } catch (error) {
       console.error('Error saving QR to Photo Library:', error);
@@ -113,57 +101,27 @@ const GenerateQRScreen = ({ navigation, route }) => {
     }
   };
 
+  // Determine status background class
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-500';
+      case 'loaned':
+        return 'bg-orange-500';
+      case 'unavailable':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  // Render layout for saving QR code
   const renderSaveLayout = () => (
-      <View style={styles.saveLayoutContainer}>
-
-        <ViewShot style={styles.viewShotLayout} ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
-          <Text style={styles.saveTitle}>Property of {currentUser.display_name}</Text>
-          <View style={styles.saveLayout}>
-            <View style={styles.saveQrSection}>
-              <QRCode
-                value={JSON.stringify({
-                  id: book.id,
-                  title: book.title,
-                  author: book.author,
-                  type: 'library_book'
-                })}
-                size={120} // Reduced from 150 to fit better with header
-                backgroundColor="white"
-                color="black"
-                getRef={(ref) => setQrRef(ref)}
-              />
-            </View>
-            <View style={styles.saveDetailsSection}>
-              <Text style={styles.saveBookTitle}>{book.title}</Text>
-              <Text style={styles.saveSubtitle}>by {book.author}</Text>
-
-              <Text style={styles.saveInfoText}>{book.library_info?.location} </Text>
-            </View>
-          </View>
-      
-        </ViewShot>
-      </View>
-   
-  );
-  
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4A90E2" />
-        <Text style={styles.loadingText}>Loading book details...</Text>
-      </View>
-    );
-  }
-  
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Card style={styles.bookCard}>
-        <Card.Content>
-          <Title style={styles.bookTitle}>{book.title}</Title>
-          <Paragraph style={styles.bookAuthor}>by {book.author}</Paragraph>
-          <Divider style={styles.divider} />
-          
-          <View style={styles.qrContainer}>
+    <View className="flex-col bg-white w-full h-full border border-black rounded-[10px] p-1.25 items-center justify-center">
+      <Text className="text-lg font-medium mb-2.5">Property of {currentUser.display_name}</Text>
+      <ViewShot className="flex-col bg-white w-full h-full border border-black rounded-[10px] items-center justify-center">
+        <View className="flex-row bg-white w-full">
+          <View className="w-1/2 justify-center items-center">
             <QRCode
               value={JSON.stringify({
                 id: book.id,
@@ -171,87 +129,124 @@ const GenerateQRScreen = ({ navigation, route }) => {
                 author: book.author,
                 type: 'library_book'
               })}
-              size={200}
+              size={120}
               backgroundColor="white"
               color="black"
               getRef={(ref) => setQrRef(ref)}
             />
-            <Text style={styles.qrText}>Scan for the book details</Text>
           </View>
-          
-          <Divider style={styles.divider} />
-          
-          <View style={styles.bookInfo}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>ISBN:</Text>
-              <Text style={styles.infoValue}>{book.isbn || 'N/A'}</Text>
+          <View className="w-1/2 justify-center">
+            <Text className="text-[15px] font-semibold mb-1.25">{book.title}</Text>
+            <Text className="text-xs text-gray-600 mb-1.25">by {book.author}</Text>
+            <Text className="text-xs mt-1.25 mb-1.25">{book.library_info?.location}</Text>
+          </View>
+        </View>
+      </ViewShot>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-100">
+        <ActivityIndicator size="large" color="#4A90E2" />
+        <Text className="mt-2.5 text-gray-600">Loading book details...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-gray-100">
+      <View className="p-5 pb-10">
+        <Card className="rounded-lg shadow-md mb-5">
+          <Card.Content>
+            <Title className="text-xl font-bold">{book.title}</Title>
+            <Paragraph className="text-gray-600 mb-2.5">by {book.author}</Paragraph>
+            <Divider className="my-1.25" />
+            <View className="items-center p-2.5">
+              <QRCode
+                value={JSON.stringify({
+                  id: book.id,
+                  title: book.title,
+                  author: book.author,
+                  type: 'library_book'
+                })}
+                size={200}
+                backgroundColor="white"
+                color="black"
+                getRef={(ref) => setQrRef(ref)}
+              />
+              <Text className="mt-2.5 text-gray-600 text-sm">Scan for the book details</Text>
             </View>
-            
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Status:</Text>
-              <View style={[
-                styles.statusBadge, 
-                { backgroundColor: getStatusColor(book.status) }
-              ]}>
-                <Text style={styles.statusText}>
-                  {book.status ? book.status.charAt(0).toUpperCase() + book.status.slice(1) : 'Unknown'}
-                </Text>
+            <Divider className="my-1.25" />
+            <View className="mt-1.25">
+              <View className="flex-row items-center mb-2">
+                <Text className="w-[70px] text-sm text-gray-600">ISBN:</Text>
+                <Text className="text-sm text-gray-800 flex-1">{book.isbn || 'N/A'}</Text>
+              </View>
+              <View className="flex-row items-center mb-2">
+                <Text className="w-[70px] text-sm text-gray-600">Status:</Text>
+                <View className={`px-2 py-0.5 rounded-[12px] ${getStatusClass(book.status)}`}>
+                  <Text className="text-white text-xs font-bold">
+                    {book.status ? book.status.charAt(0).toUpperCase() + book.status.slice(1) : 'Unknown'}
+                  </Text>
+                </View>
+              </View>
+              <View className="flex-row items-center mb-2">
+                <Text className="w-[70px] text-sm text-gray-600">Location:</Text>
+                <Text className="text-sm text-gray-800 flex-1">{book.library_info.location || 'Not specified'}</Text>
               </View>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Location:</Text>
-              <Text style={styles.infoValue}>{book.library_info.location || 'Not specified'}</Text>
-            </View>
-
-          </View>
-        </Card.Content>
-      </Card>
-
-      <Button
-        mode="outlined"
-        icon="download"
-        onPress={handleSaveQR}
-        style={styles.qrButton}
-      >
-        Save
-      </Button>
-      
-      <TouchableOpacity 
-        style={styles.printHint}
-        onPress={() => Alert.alert(
-          'Printing the label',
-          'For best results, print the label at 300 DPI or higher. Stick the QR code on the book cover or inside the front cover for easy access.'
-        )}
-      >
-        <MaterialCommunityIcons name="information" size={20} color="#4A90E2" />
-        <Text style={styles.printHintText}>Printing tips</Text>
-      </TouchableOpacity>
-
+          </Card.Content>
+        </Card>
+        <Button
+          mode="outlined"
+          icon="download"
+          onPress={handleSaveQR}
+          className="mb-5"
+          style={{ borderColor: '#4A90E2' }}
+        >
+          Save
+        </Button>
+        <TouchableOpacity
+          className="flex-row items-center justify-center mt-2.5"
+          onPress={() => Alert.alert(
+            'Printing the label',
+            'For best results, print the label at 300 DPI or higher. Stick the QR code on the book cover or inside the front cover for easy access.'
+          )}
+        >
+          <MaterialCommunityIcons name="information" size={20} color="#4A90E2" />
+          <Text className="ml-1.25 text-[#4A90E2] text-sm">Printing tips</Text>
+        </TouchableOpacity>
+      </View>
       <Modal
         visible={previewVisible}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setPreviewVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.previewContainer}>
-            <Text style={styles.previewTitle}>Label Preview</Text>
-            <View style={styles.previewLayoutContainer}>
-              {renderSaveLayout()}
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-5 w-[90%] items-center">
+            <Text className="text-lg font-bold mb-3.75">Label Preview</Text>
+            <View className="w-[300px] h-[180px] mb-5">
+              <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1.0 }}>
+                {renderSaveLayout()}
+              </ViewShot>
             </View>
-            <View style={styles.previewActions}>
+            <View className="flex-row justify-between w-full">
               <Button
                 mode="outlined"
                 onPress={confirmSave}
-                style={styles.printSave}
+                className="flex-1 mx-1.25 mb-1.25"
+                style={{ borderColor: '#4A90E2' }}
               >
                 Save
               </Button>
               <Button
                 mode="outlined"
                 onPress={() => setPreviewVisible(false)}
+                className="flex-1 mx-1.25 mb-1.25"
+                style={{ borderColor: '#FF3B30' }}
                 textColor="#FF3B30"
-                style={styles.printCancel}
               >
                 Cancel
               </Button>
@@ -262,220 +257,5 @@ const GenerateQRScreen = ({ navigation, route }) => {
     </ScrollView>
   );
 };
-
-// Helper function to determine status color
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'available':
-      return '#4CD964';
-    case 'loaned':
-      return '#FF9500';
-    case 'unavailable':
-      return '#FF3B30';
-    default:
-      return '#8E8E93';
-  }
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#666666',
-  },
-  bookCard: {
-    borderRadius: 10,
-    elevation: 2,
-    marginBottom: 20,
-  },
-  bookTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  bookAuthor: {
-    color: '#666666',
-    marginBottom: 10,
-  },
-  divider: {
-    marginVertical: 5,
-  },
-  qrContainer: {
-    alignItems: 'center',
-    padding: 10,
-  },
-  qrText: {
-    marginTop: 10,
-    color: '#666666',
-    fontSize: 14,
-  },
-  bookInfo: {
-    marginTop: 5,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  infoLabel: {
-    width: 70,
-    fontSize: 14,
-    color: '#666666',
-  },
-  infoValue: {
-    fontSize: 14,
-    color: '#333333',
-    flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  printHint: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  printHintText: {
-    marginLeft: 5,
-    color: '#4A90E2',
-    fontSize: 14,
-  },
-
-  printSave: {
-    marginLeft:5,
-    marginRight:5,
-    marginBottom: 5,
-    borderColor: '#4A90E2',
-  },
-  printCancel: {
-    marginLeft:5,
-    marginRight:5,
-    marginBottom: 5,
-    borderColor: '#FF3B30',
-  },
-  saveLayoutContainer: {
-    flexDirection: 'column',
-    backgroundColor: 'white',
-    width: '100%',
-    height: '100%',
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 10,
-    padding:5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  viewShotLayout: {
-    flexDirection: 'column',
-    backgroundColor: 'white',
-    width: '100%',
-    height: '100%',
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveLayout: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    width: '100%',
-  },
-  saveQrSection: {
-    width: '50%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  saveDetailsSection: {
-    width: '50%',
-    // paddingLeft: 5,
-    justifyContent: 'center',
-  },
-  saveTitle: {
-    fontSize: 18,
-    fontWeight: '500', 
-    marginBottom: 10,
-  },
-  saveBookTitle: {  
-    fontSize: 15,
-    fontWeight: '600', 
-    marginBottom: 5,
-  },
-  saveSubtitle: {
-    fontSize: 12,  
-    color: '#666',
-    marginBottom: 5,
-  },
-  saveInfoText: {
-    fontSize: 12,
-    marginTop: 5,
-    marginBottom:5,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  previewContainer: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    width: '90%',
-    alignItems: 'center',
-  },
-  previewTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  previewLayoutContainer: {
-    width: 300, 
-    height: 180, 
-    marginBottom: 20,
-  },
-  previewActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  previewButton: {
-    flex: 1,
-    backgroundColor: '#4A90E2',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: '#FF3B30',
-  },
-  previewButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
 
 export default GenerateQRScreen;

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
@@ -79,7 +78,7 @@ const ScanBookScreen = ({ navigation, route }) => {
       if (book) {
         setScannedBooks((prevBooks) => [...prevBooks, book]);
         setLoading(false);
-      }else{
+      } else {
         Alert.alert('Error', 'Failed to process the ISBN. Please try again.', [{
           text: 'OK',
           onPress: () => {
@@ -179,16 +178,16 @@ const ScanBookScreen = ({ navigation, route }) => {
   const handleAddBook = async (data) => {
     setLoading(true);
     setLoadingType('adding');
-    try{
-      if(data){
+    try {
+      if (data) {
         setScannedBooks((prevBooks) => [...prevBooks, data]);
         setAddManually(false);
         setSearchedBook({});
         setSearchInput('');
         setLoading(false);
       }
-    }catch(error){
-      console.error('Error adding book:', error); 
+    } catch (error) {
+      console.error('Error adding book:', error);
       Alert.alert('Error', 'Failed to process the ISBN. Please try again.', [{
         text: 'OK',
         onPress: () => {
@@ -196,10 +195,9 @@ const ScanBookScreen = ({ navigation, route }) => {
           setSearchInput('');
         }
       }]);
-    }finally{
+    } finally {
       setLoading(false);
     }
-    // console.log('handleAddBook was clicked',data);
   };
 
   const getUniqueBooksWithCounts = () => {
@@ -244,7 +242,6 @@ const ScanBookScreen = ({ navigation, route }) => {
         throw new Error(result.error || 'Batch upload failed');
       }
     } catch (error) {
-      // console.error('Batch upload process failed:', error);
       Alert.alert('Error', 'Failed to upload books. Please try again.');
     } finally {
       setLoading(false);
@@ -254,24 +251,24 @@ const ScanBookScreen = ({ navigation, route }) => {
 
   if (!permission) {
     return (
-      <View style={styles.container}>
+      <View className="flex-1 bg-black justify-center items-center">
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text style={styles.text}>Checking camera permissions...</Text>
+        <Text className="text-white text-center mt-3">Checking camera permissions...</Text>
       </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
+      <View className="flex-1 bg-black justify-center items-center">
         <MaterialCommunityIcons name="camera-off" size={64} color="#FF3B30" />
-        <Text style={styles.text}>Camera access is required to scan QR codes.</Text>
+        <Text className="text-white text-center mt-3">Camera access is required to scan QR codes.</Text>
         {permission.canAskAgain ? (
-          <Button mode="contained" onPress={requestPermission} style={styles.button}>
+          <Button mode="contained" onPress={requestPermission} className="mt-5">
             Grant Permission
           </Button>
         ) : (
-          <Button mode="contained" onPress={() => navigation.goBack()} style={styles.button}>
+          <Button mode="contained" onPress={() => navigation.goBack()} className="mt-5">
             Go Back
           </Button>
         )}
@@ -291,33 +288,36 @@ const ScanBookScreen = ({ navigation, route }) => {
 
   return (
     <PaperProvider>
-      <View style={styles.container}>
+      <View className="flex-1 bg-black justify-center items-center">
         <CameraView
-          style={styles.camera}
+          className="flex-1 w-full"
           facing="back"
           flashMode="torch"
-          // enableTorch={true}
           barcodeScannerSettings={{ barcodeTypes: ['ean13'] }}
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         />
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Scan Book ISBN Barcode</Text>
-          <Text style={styles.subHeaderText}>Position Barcode within frame</Text>
+        <View className="absolute top-[50px] left-0 right-0 items-center px-5">
+          <Text className="text-white text-xl font-bold text-center bg-black/50 px-4 py-2 rounded-2xl">
+            Scan Book ISBN Barcode
+          </Text>
+          <Text className="text-white text-sm text-center bg-black/50 px-4 py-1 rounded-[15px] mt-2">
+            Position Barcode within frame
+          </Text>
         </View>
         {scanned && !loading && (
-          <TouchableOpacity style={styles.scanButton} onPress={resetScan}>
+          <TouchableOpacity className="absolute bottom-[50px] flex-row items-center bg-blue-500 p-2.5 rounded-[25px]" onPress={resetScan}>
             <MaterialCommunityIcons name="qrcode-scan" size={28} color="#FFFFFF" />
-            <Text style={styles.scanButtonText}>Scan Again</Text>
+            <Text className="text-white ml-1 font-bold">Scan Again</Text>
           </TouchableOpacity>
         )}
         <LoadingOverlay visible={loading} message={loadingMessage()} />
-        <View style={styles.openDrawerButton}>
+        <View className="absolute bottom-5 right-5 p-2.5 z-10">
           <TouchableOpacity onPress={openDrawer}>
-            <View style={styles.buttonContainer}>
-              <MaterialCommunityIcons name="menu" size={28} color={'#FFFFFF'} />
+            <View className="relative">
+              <MaterialCommunityIcons name="menu" size={28} color="#FFFFFF" />
               {!drawerOpen && scannedBooks.length > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
+                <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 justify-center items-center">
+                  <Text className="text-white text-xs font-bold">
                     {scannedBooks.length > 99 ? '99+' : scannedBooks.length}
                   </Text>
                 </View>
@@ -327,48 +327,47 @@ const ScanBookScreen = ({ navigation, route }) => {
         </View>
         {drawerOpen && (
           <>
-            <TouchableOpacity style={styles.overlay} onPress={closeDrawer} />
+            <TouchableOpacity className="absolute inset-0 bg-black/50" onPress={closeDrawer} />
             <Animated.View
-              style={[
-                styles.drawerContainer,
-                { transform: [{ translateY: drawerTranslateY }] },
-              ]}
+              className="absolute bottom-0 left-0 right-0 h-3/4 bg-white shadow-lg rounded-t-[20px] z-10"
+              style={{ transform: [{ translateY: drawerTranslateY }] }}
             >
-              <View style={styles.drawerContent}>
-                <View style={styles.drawerSection}>
-                  <Title style={styles.drawerTitle}>{scannedBooks.length} Scanned Books</Title>
-                  <View style={styles.searchContainer}>
+              <View className="flex-1 flex-col justify-between">
+                <View className="p-2.5 flex-1">
+                  <Title className="text-[13px] font-medium text-gray-700 text-center">
+                    {scannedBooks.length} Scanned Books
+                  </Title>
+                  <View className="flex-row items-center mt-2.5 px-2.5">
                     {addManually && (
-                      <TouchableOpacity style={styles.chevronButton} onPress={() => setAddManually(false)}>
+                      <TouchableOpacity className="p-1.5 mr-2.5" onPress={() => setAddManually(false)}>
                         <MaterialCommunityIcons name="chevron-left" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                     <TextInput
                       mode="outlined"
                       placeholder={addManually ? "Enter ISBN..." : "Search scanned books..."}
-                      style={[styles.searchInput, addManually && styles.searchInputWithChevron]}
-                      contentStyle={styles.searchContent}
+                      className={`flex-1 h-10 bg-white rounded-[20px] ${addManually ? '' : 'ml-0'}`}
                       left={<TextInput.Icon icon="magnify" />}
-                      outlineStyle={styles.searchOutline}
+                      outlineStyle={{ borderRadius: 20 }}
                       value={searchInput}
                       onChangeText={(text) => setSearchInput(text)}
                       onSubmitEditing={handleSearchSubmit}
                       returnKeyType="search"
                     />
                     {!addManually && (
-                      <TouchableOpacity style={styles.plusButton} onPress={() => setAddManually(true)}>
+                      <TouchableOpacity className="ml-2.5 p-1.5" onPress={() => setAddManually(true)}>
                         <MaterialCommunityIcons name="plus" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                   </View>
                   <ScrollView
-                    contentContainerStyle={styles.scrollContent}
-                    style={styles.scrollView}
+                    contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+                    className="flex-1"
                   >
                     {addManually ? (
                       <AddBookForm
                         initialBookData={searchedBook}
-                        handleAddBook={handleAddBook} // Changed onSubmit to handleAddBook to match prop name
+                        handleAddBook={handleAddBook}
                       />
                     ) : scannedBooks.length > 0 ? (
                       getUniqueBooksWithCounts().map(({ book, copyCount }, index) => (
@@ -401,25 +400,25 @@ const ScanBookScreen = ({ navigation, route }) => {
                         />
                       ))
                     ) : (
-                      <Text style={styles.noDataText}>No scanned books available yet</Text>
+                      <Text className="text-center text-gray-400 my-5 italic">No scanned books available yet</Text>
                     )}
                   </ScrollView>
                 </View>
                 {!addManually && scannedBooks.length > 0 && (
-                  <View style={styles.actionButtonsContainer}>
+                  <View className="flex-row justify-between px-2.5 pb-4 pt-2.5">
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteAllButton]}
+                      className="flex-row items-center py-2 px-4 rounded-[20px] flex-1 mx-1.5 justify-center border-2 border-red-500 bg-transparent"
                       onPress={() => setScannedBooks([])}
                     >
                       <MaterialCommunityIcons name="delete-sweep" size={24} color="#FF3B30" />
-                      <Text style={styles.deleteAllButtonText}>clear</Text>
+                      <Text className="text-red-500 text-sm font-bold ml-1.5">clear</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.addBooksButton]}
+                      className="flex-row items-center py-2 px-4 rounded-[20px] flex-1 mx-1.5 justify-center border-2 border-blue-500 bg-transparent"
                       onPress={uploadBooks}
                     >
                       <MaterialCommunityIcons name="book-plus" size={24} color="#4A90E2" />
-                      <Text style={styles.addBooksButtonText}>Add Books</Text>
+                      <Text className="text-blue-500 text-sm font-bold ml-1.5">Add Books</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -431,208 +430,5 @@ const ScanBookScreen = ({ navigation, route }) => {
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerContainer: {
-    position: 'absolute',
-    top: 50,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  headerText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  subHeaderText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    textAlign: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderRadius: 15,
-    marginTop: 8,
-  },
-  camera: {
-    flex: 1,
-    width: '100%',
-  },
-  scanButton: {
-    position: 'absolute',
-    bottom: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4A90E2',
-    padding: 10,
-    borderRadius: 25,
-  },
-  scanButtonText: {
-    color: '#FFFFFF',
-    marginLeft: 5,
-    fontWeight: 'bold',
-  },
-  text: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 12,
-  },
-  button: {
-    marginTop: 20,
-  },
-  openDrawerButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    padding: 10,
-    zIndex: 5,
-  },
-  buttonContainer: {
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#FF0000',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  drawerContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.75,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    zIndex: 10,
-  },
-  drawerContent: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  drawerSection: {
-    padding: 10,
-    flex: 1,
-  },
-  drawerTitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#333',
-    textAlign: 'center',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    paddingHorizontal: 10,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-  },
-  plusButton: {
-    marginLeft: 10,
-    padding: 5,
-  },
-  chevronButton: {
-    padding: 5,
-    marginRight: 10,
-  },
-  searchInputWithChevron: {
-    flex: 1,
-  },
-  searchOutline: {
-    borderRadius: 20,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 20, // Ensure padding at the bottom for scrollable content
-  },
-  noDataText: {
-    textAlign: 'center',
-    color: '#999999',
-    marginVertical: 20,
-    fontStyle: 'italic',
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    paddingBottom: 15,
-    paddingTop: 10,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  deleteAllButton: {
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FF3B30',
-    backgroundColor: 'transparent',
-  },
-  addBooksButton: {
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#4A90E2',
-    backgroundColor: 'transparent',
-  },
-  deleteAllButtonText: {
-    color: '#FF3B30',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 5,
-  },
-  addBooksButtonText: {
-    color: '#4A90E2',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 5,
-  },
-});
 
 export default ScanBookScreen;

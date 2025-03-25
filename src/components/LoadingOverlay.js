@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, ActivityIndicator, Modal } from 'react-native';
 
 /**
  * Reusable loading overlay component
@@ -14,40 +14,14 @@ const LoadingOverlay = ({ visible, message = "Loading..." }) => {
       animationType="fade"
       visible={visible}
     >
-      <View style={styles.loadingOverlay}>
-        <View style={styles.loadingContainer}>
+      <View className="flex-1 bg-black/70 justify-center items-center">
+        <View className="bg-white rounded-lg p-5 items-center shadow-lg">
           <ActivityIndicator size="large" color="#4A90E2" />
-          <Text style={styles.loadingText}>{message}</Text>
+          <Text className="mt-2.5 text-base text-primary font-semibold">{message}</Text>
         </View>
       </View>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  loadingOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#4A90E2',
-    fontWeight: '600',
-  },
-});
 
 export default LoadingOverlay;

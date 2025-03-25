@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
@@ -82,7 +81,6 @@ const ScanQRScreen = ({ navigation }) => {
       const bookData = await getBookById(qrData.id);
 
       if (bookData) {
-        // Check if the book is already in scannedBooks
         const isDuplicate = scannedBooks.some((book) => book.id === bookData.id);
         if (isDuplicate) {
           Alert.alert('Duplicate Scan', 'You can only loan one copy per book.', [{
@@ -191,24 +189,38 @@ const ScanQRScreen = ({ navigation }) => {
 
   if (!permission) {
     return (
-      <View style={styles.container}>
+      <View className="flex-1 bg-black justify-center items-center">
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text style={styles.text}>Checking camera permissions...</Text>
+        <Text className="text-white text-base mt-5 text-center">
+          Checking camera permissions...
+        </Text>
       </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
+      <View className="flex-1 bg-black justify-center items-center">
         <MaterialCommunityIcons name="camera-off" size={64} color="#FF3B30" />
-        <Text style={styles.text}>Camera access is required to scan QR codes.</Text>
+        <Text className="text-white text-base mt-5 text-center">
+          Camera access is required to scan QR codes.
+        </Text>
         {permission.canAskAgain ? (
-          <Button mode="contained" onPress={requestPermission} style={styles.button}>
+          <Button
+            mode="contained"
+            onPress={requestPermission}
+            className="mt-5 w-48" // Width approximates 200px
+            style={{ backgroundColor: '#4A90E2' }} // className may not override bg for Button, using style
+          >
             Grant Permission
           </Button>
         ) : (
-          <Button mode="contained" onPress={() => navigation.goBack()} style={styles.button}>
+          <Button
+            mode="contained"
+            onPress={() => navigation.goBack()}
+            className="mt-5 w-48"
+            style={{ backgroundColor: '#4A90E2' }}
+          >
             Go Back
           </Button>
         )}
@@ -218,9 +230,9 @@ const ScanQRScreen = ({ navigation }) => {
 
   return (
     <PaperProvider>
-      <View style={styles.container}>
+      <View className="flex-1 bg-black justify-center items-center">
         <CameraView
-          style={styles.camera}
+          className="flex-1 w-full"
           facing="back"
           onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
           barcodeScannerSettings={{
@@ -228,32 +240,41 @@ const ScanQRScreen = ({ navigation }) => {
           }}
         />
 
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Scan Library QR Code</Text>
-          <Text style={styles.subHeaderText}>Position QR code within frame</Text>
+        <View className="absolute top-[50px] left-0 right-0 items-center px-5">
+          <Text className="text-white text-xl font-bold text-center bg-black/50 px-4 py-2 rounded-[20px]">
+            Scan Library QR Code
+          </Text>
+          <Text className="text-white text-sm text-center bg-black/50 px-4 py-1 rounded-[15px] mt-2">
+            Position QR code within frame
+          </Text>
         </View>
 
         {scanned && !loading && (
-          <TouchableOpacity style={styles.scanButton} onPress={resetScan}>
+          <TouchableOpacity
+            className="absolute bottom-[50px] flex-row items-center bg-[#4A90E2] p-[10px] rounded-[25px]"
+            onPress={resetScan}
+          >
             <MaterialCommunityIcons name="qrcode-scan" size={28} color="#FFFFFF" />
-            <Text style={styles.scanButtonText}>Scan Again</Text>
+            <Text className="text-white ml-1.5 font-bold">Scan Again</Text>
           </TouchableOpacity>
         )}
 
         {loading && (
-          <View style={styles.loadingOverlay}>
+          <View className="absolute top-0 left-0 right-0 bottom-0 justify-center items-center bg-black/70">
             <ActivityIndicator size="large" color="#FFFFFF" />
-            <Text style={styles.loadingText}>Processing book information...</Text>
+            <Text className="text-white mt-2.5 text-base">
+              Processing book information...
+            </Text>
           </View>
         )}
 
-        <View style={styles.openDrawerButton}>
+        <View className="absolute bottom-5 right-5 p-2.5 z-10">
           <TouchableOpacity onPress={openDrawer}>
-            <View style={styles.buttonContainer}>
-              <MaterialCommunityIcons name="menu" size={28} color={'#FFFFFF'} />
+            <View className="relative">
+              <MaterialCommunityIcons name="menu" size={28} color="#FFFFFF" />
               {!drawerOpen && scannedBooks.length > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
+                <View className="absolute -top-1.5 -right-1.5 bg-red-500 rounded-full w-5 h-5 justify-center items-center">
+                  <Text className="text-white text-xs font-bold">
                     {scannedBooks.length > 99 ? '99+' : scannedBooks.length}
                   </Text>
                 </View>
@@ -265,57 +286,53 @@ const ScanQRScreen = ({ navigation }) => {
         {/* Main Drawer */}
         {drawerOpen && (
           <>
-            <TouchableOpacity style={styles.overlay} onPress={closeDrawer} />
+            <TouchableOpacity
+              className="absolute top-0 left-0 right-0 bottom-0 bg-black/50"
+              onPress={closeDrawer}
+            />
             <Animated.View
-              style={[
-                styles.drawerContainer,
-                { transform: [{ translateY: drawerTranslateY }] },
-              ]}
+              className="absolute bottom-0 left-0 right-0 h-[75%] bg-white rounded-t-2xl"
+              style={{ transform: [{ translateY: drawerTranslateY }] }}
             >
-              <View style={styles.drawerContent}>
-                <View style={styles.drawerSection}>
-                  <Title style={styles.drawerTitle}>{scannedBooks.length} Scanned Books</Title>
+              <View className="flex-1 flex-col justify-between">
+                <View className="p-2.5 flex-1 h-full">
+                  <Title className="text-[13px] font-medium text-gray-700 text-center">
+                    {scannedBooks.length} Scanned Books
+                  </Title>
 
-                  <View style={styles.searchContainer}>
+                  <View className="flex-row items-center mt-2.5 px-2.5">
                     {addManually && (
-                      <TouchableOpacity 
-                        style={styles.chevronButton}
+                      <TouchableOpacity
+                        className="p-1.5 mr-2.5"
                         onPress={() => setAddManually(false)}
                       >
-                        <MaterialCommunityIcons 
-                          name="chevron-left" 
-                          size={32} 
-                          color="#4A90E2" 
-                        />
+                        <MaterialCommunityIcons name="chevron-left" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                     <TextInput
                       mode="outlined"
                       placeholder={addManually ? "Enter ISBN,Book Name, Author..." : "Search scanned books..."}
-                      style={[styles.searchInput, addManually && styles.searchInputWithChevron]}
-                      contentStyle={styles.searchContent}
+                      className={`flex-1 h-10 bg-white rounded-xl ${addManually ? '' : ''}`}
                       left={<TextInput.Icon icon="magnify" />}
-                      outlineStyle={styles.searchOutline}
+                      outlineStyle={{ borderRadius: 20 }} // Kept as style due to outlineStyle prop
                     />
                     {!addManually && (
-                      <TouchableOpacity 
-                        style={styles.plusButton}
+                      <TouchableOpacity
+                        className="ml-2.5 p-1.5"
                         onPress={() => setAddManually(true)}
                       >
-                        <MaterialCommunityIcons 
-                          name="plus" 
-                          size={32} 
-                          color="#4A90E2" 
-                        />
+                        <MaterialCommunityIcons name="plus" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                   </View>
 
                   <ScrollView>
                     {addManually ? (
-                      <TouchableOpacity style={styles.manualAddContainer}>
+                      <TouchableOpacity className="flex-row items-center justify-center p-5 mt-5 h-full">
                         <MaterialCommunityIcons name="book-plus" size={32} color="#4A90E2" />
-                        <Text style={styles.manualAddText}>Add Manually</Text>
+                        <Text className="text-base text-[#4A90E2] ml-2.5 font-medium">
+                          Add Manually
+                        </Text>
                       </TouchableOpacity>
                     ) : scannedBooks.length > 0 ? (
                       scannedBooks.map((book, index) => (
@@ -343,26 +360,28 @@ const ScanQRScreen = ({ navigation }) => {
                         />
                       ))
                     ) : (
-                      <Text style={styles.noDataText}>No scanned books available yet</Text>
+                      <Text className="text-center text-gray-400 mt-5 italic">
+                        No scanned books available yet
+                      </Text>
                     )}
                   </ScrollView>
                 </View>
 
                 {!addManually && scannedBooks.length > 0 && (
-                  <View style={styles.actionButtonsContainer}>
+                  <View className="flex-row justify-between px-2.5 pb-4 pt-2.5">
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteAllButton]}
+                      className="flex-row items-center justify-center py-2 px-4 border-2 border-red-500 rounded-xl flex-1 mx-1.5 bg-transparent"
                       onPress={() => setScannedBooks([])}
                     >
                       <MaterialCommunityIcons name="delete-sweep" size={24} color="#FF3B30" />
-                      <Text style={styles.deleteAllButtonText}>Clear</Text>
+                      <Text className="text-red-500 text-sm font-bold ml-1.5">Clear</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.actionButton, styles.loanBooksButton]}
+                      className="flex-row items-center justify-center py-2 px-4 border-2 border-[#4A90E2] rounded-xl flex-1 mx-1.5 bg-transparent"
                       onPress={openLoanModal}
                     >
                       <MaterialCommunityIcons name="book-arrow-right" size={24} color="#4A90E2" />
-                      <Text style={styles.loanBooksButtonText}>Loan Books</Text>
+                      <Text className="text-[#4A90E2] text-sm font-bold ml-1.5">Loan Books</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -376,29 +395,31 @@ const ScanQRScreen = ({ navigation }) => {
           <Modal
             visible={showLoanModal}
             onDismiss={closeLoanModal}
-            contentContainerStyle={styles.loanModalContainer}
-            style={styles.modalStyle}
+            contentContainerStyle={{}} // Replaced with className on inner View
+            style={{ justifyContent: 'flex-end', margin: 0 }} // Kept as style for Modal-specific props
           >
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              style={styles.loanModalContent}
+              className="flex-1"
             >
-              <ScrollView contentContainerStyle={styles.loanModalScrollContent}>
-                <Text style={styles.loanModalTitle}>Loan {scannedBooks.length} Book(s)</Text>
-                <Text style={styles.loanModalSubtitle}>Enter guest details</Text>
+              <ScrollView className="px-5 pb-5">
+                <Text className="text-xl font-bold text-gray-800 mb-2">
+                  Loan {scannedBooks.length} Book(s)
+                </Text>
+                <Text className="text-sm text-gray-600 mb-5">Enter guest details</Text>
 
-                <Text style={styles.label}>Full Name</Text>
+                <Text className="text-base font-medium text-gray-800 mb-2">Full Name</Text>
                 <TextInput
-                  style={styles.input}
+                  className="bg-gray-100 h-12 rounded-lg px-4 text-base text-gray-800 border border-gray-200 mb-4"
                   placeholder="Patron's full name"
                   value={guestDetails.name}
                   onChangeText={(text) => setGuestDetails({ ...guestDetails, name: text })}
                   autoCapitalize="words"
                 />
 
-                <Text style={styles.label}>Email Address</Text>
+                <Text className="text-base font-medium text-gray-800 mb-2">Email Address</Text>
                 <TextInput
-                  style={styles.input}
+                  className="bg-gray-100 h-12 rounded-lg px-4 text-base text-gray-800 border border-gray-200 mb-4"
                   placeholder="Patron's email address"
                   value={guestDetails.email}
                   onChangeText={(text) => setGuestDetails({ ...guestDetails, email: text })}
@@ -406,13 +427,13 @@ const ScanQRScreen = ({ navigation }) => {
                   autoCapitalize="none"
                 />
 
-                <Text style={styles.label}>Phone Number</Text>
-                <View style={styles.phoneInputContainer}>
-                  <View style={styles.phonePrefix}>
-                    <Text style={styles.phonePrefixText}>+63</Text>
+                <Text className="text-base font-medium text-gray-800 mb-2">Phone Number</Text>
+                <View className="flex-row items-center mb-4">
+                  <View className="bg-gray-200 px-3 py-4 rounded-lg border border-gray-300 h-12 justify-center mr-2">
+                    <Text className="text-base font-medium text-gray-700">+63</Text>
                   </View>
                   <TextInput
-                    style={styles.phoneInput}
+                    className="flex-1 bg-gray-100 h-12 rounded-lg px-4 text-base text-gray-800 border border-gray-200"
                     placeholder="XXXXXXXXX"
                     value={guestDetails.phone}
                     onChangeText={(value) => setGuestDetails({ ...guestDetails, phone: value.replace(/[^0-9]/g, '') })}
@@ -423,7 +444,8 @@ const ScanQRScreen = ({ navigation }) => {
                 <Button
                   mode="contained"
                   onPress={handleLoanSubmit}
-                  style={styles.loanSubmitButton}
+                  className="mt-5 py-1"
+                  style={{ backgroundColor: '#4A90E2' }} // className bg doesn’t override, using style
                   disabled={loanLoading}
                   loading={loanLoading}
                 >
@@ -432,7 +454,7 @@ const ScanQRScreen = ({ navigation }) => {
                 <Button
                   mode="text"
                   onPress={closeLoanModal}
-                  style={styles.cancelModalButton}
+                  className="mt-2.5"
                 >
                   Cancel
                 </Button>
@@ -444,334 +466,5 @@ const ScanQRScreen = ({ navigation }) => {
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  camera: {
-    flex: 1,
-    width: '100%',
-  },
-  headerContainer: {
-    position: 'absolute',
-    top: 50,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  headerText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  subHeaderText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    textAlign: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderRadius: 15,
-    marginTop: 8,
-  },
-  text: {
-    color: '#FFF',
-    fontSize: 16,
-    marginTop: 20,
-    textAlign: 'center',
-  },
-  button: {
-    marginTop: 20,
-    width: 200,
-    backgroundColor: '#4A90E2',
-  },
-  scanButton: {
-    position: 'absolute',
-    bottom: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4A90E2',
-    padding: 10,
-    borderRadius: 25,
-  },
-  scanButtonText: {
-    color: '#FFFFFF',
-    marginLeft: 5,
-    fontWeight: 'bold',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  loadingText: {
-    color: '#FFFFFF',
-    marginTop: 10,
-    fontSize: 16,
-  },
-  openDrawerButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    padding: 10,
-    zIndex: 10,
-  },
-  buttonContainer: {
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#FF0000',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  drawerContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.75,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  drawerContent: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  drawerSection: {
-    padding: 10,
-    flex: 1,
-    height:'100%',
-  },
-  drawerTitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#333',
-    textAlign: 'center',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    paddingHorizontal: 10,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-  },
-  plusButton: {
-    marginLeft: 10,
-    padding: 5,
-  },
-  chevronButton: {
-    padding: 5,
-    marginRight: 10,
-  },
-  searchInputWithChevron: {
-    flex: 1,
-  },
-  searchOutline: {
-    borderRadius: 20,
-  },
-  noDataText: {
-    textAlign: 'center',
-    color: '#999999',
-    marginVertical: 20,
-    fontStyle: 'italic',
-  },
-  manualAddContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    marginTop: 20,
-    height:'100%',
-  },
-  manualAddText: {
-    fontSize: 16,
-    color: '#4A90E2',
-    marginLeft: 10,
-    fontWeight: '500',
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    paddingBottom: 15,
-    paddingTop: 10,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  deleteAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 2,
-    borderColor: '#FF3B30',
-    borderRadius: 20,
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: 'transparent',
-  },
-  loanBooksButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 2,
-    borderColor: '#4A90E2',
-    borderRadius: 20,
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: 'transparent',
-  },
-  deleteAllButtonText: {
-    color: '#FF3B30',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 5,
-  },
-  loanBooksButtonText: {
-    color: '#4A90E2',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 5,
-  },
-  modalStyle: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  loanModalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: height * 0.6,
-    paddingTop: 20,
-  },
-  loanModalContent: {
-    flex: 1,
-  },
-  loanModalScrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  loanModalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  loanModalSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#F9F9F9',
-    height: 50,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-    marginBottom: 16,
-  },
-  phoneInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  phonePrefix: {
-    backgroundColor: '#F0F0F0',
-    paddingHorizontal: 12,
-    paddingVertical: 16,
-    borderRadius: 8,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: '#DDDDDD',
-    height: 50,
-    justifyContent: 'center',
-  },
-  phonePrefixText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333333',
-  },
-  phoneInput: {
-    flex: 1,
-    backgroundColor: '#F9F9F9',
-    height: 50,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  loanSubmitButton: {
-    backgroundColor: '#4A90E2',
-    marginTop: 20,
-    paddingVertical: 5,
-  },
-  cancelModalButton: {
-    marginTop: 10,
-  },
-  
-});
 
 export default ScanQRScreen;

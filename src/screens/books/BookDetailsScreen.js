@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
@@ -44,7 +43,7 @@ const BookDetailsScreen = ({ navigation, route }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const [showLendDrawer, setShowLendDrawer] = useState(false); // New state for drawer
+  const [showLendDrawer, setShowLendDrawer] = useState(false);
   const [lendName, setLendName] = useState('');
   const [lendEmail, setLendEmail] = useState('');
   const [lendPhone, setLendPhone] = useState('');
@@ -62,7 +61,6 @@ const BookDetailsScreen = ({ navigation, route }) => {
         setLoading(true);
         const bookData = await getBookById(book_id);
         if (bookData) {
-          // console.log('bookData :: ', bookData)
           setBook(bookData);
           fetchBorrowHistory(book_id);
         } else {
@@ -139,7 +137,7 @@ const BookDetailsScreen = ({ navigation, route }) => {
   };
 
   const handleLendBook = () => {
-    setShowLendDrawer(true); // Open the drawer
+    setShowLendDrawer(true);
   };
 
   const handleBorrowSubmit = async () => {
@@ -208,10 +206,10 @@ const BookDetailsScreen = ({ navigation, route }) => {
   }
 
   const categories = book.categories
-  ? Array.isArray(book.categories)
-    ? book.categories
-    : book.categories.split(', ').map(cat => cat.trim())
-  : [];
+    ? Array.isArray(book.categories)
+      ? book.categories
+      : book.categories.split(', ').map(cat => cat.trim())
+    : [];
 
   return (
     <>
@@ -229,17 +227,17 @@ const BookDetailsScreen = ({ navigation, route }) => {
         <Dialog visible={showStatusDialog} onDismiss={() => setShowStatusDialog(false)}>
           <Dialog.Title>Change Book Status</Dialog.Title>
           <Dialog.Content>
-            <TouchableOpacity style={styles.statusOption} onPress={() => handleChangeStatus('available')}>
-              <View style={[styles.statusDot, { backgroundColor: '#4CD964' }]} />
-              <Text style={styles.statusOptionText}>Available</Text>
+            <TouchableOpacity className="flex-row items-center py-3 border-b border-gray-200" onPress={() => handleChangeStatus('available')}>
+              <View className="w-3.5 h-3.5 rounded-full bg-green-500 mr-2" />
+              <Text className="text-base">Available</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.statusOption} onPress={() => handleChangeStatus('loaned')}>
-              <View style={[styles.statusDot, { backgroundColor: '#FF9500' }]} />
-              <Text style={styles.statusOptionText}>Loaned</Text>
+            <TouchableOpacity className="flex-row items-center py-3 border-b border-gray-200" onPress={() => handleChangeStatus('loaned')}>
+              <View className="w-3.5 h-3.5 rounded-full bg-orange-500 mr-2" />
+              <Text className="text-base">Loaned</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.statusOption} onPress={() => handleChangeStatus('unavailable')}>
-              <View style={[styles.statusDot, { backgroundColor: '#FF3B30' }]} />
-              <Text style={styles.statusOptionText}>Unavailable</Text>
+            <TouchableOpacity className="flex-row items-center py-3" onPress={() => handleChangeStatus('unavailable')}>
+              <View className="w-3.5 h-3.5 rounded-full bg-red-500 mr-2" />
+              <Text className="text-base">Unavailable</Text>
             </TouchableOpacity>
           </Dialog.Content>
           <Dialog.Actions>
@@ -247,33 +245,38 @@ const BookDetailsScreen = ({ navigation, route }) => {
           </Dialog.Actions>
         </Dialog>
 
-        {/* Lend Book Drawer */}
         <Modal
           visible={showLendDrawer}
           onDismiss={() => setShowLendDrawer(false)}
-          contentContainerStyle={styles.drawerContainer}
-          style={styles.modalStyle}
+          contentContainerStyle={{
+            backgroundColor: '#FFFFFF',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            height: Dimensions.get('window').height * 0.6,
+            paddingTop: 20,
+          }}
+          style={{ justifyContent: 'flex-end', margin: 0 }}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.drawerContent}
+            className="flex-1"
           >
-            <ScrollView contentContainerStyle={styles.drawerScrollContent}>
-              {/* <Text style={styles.drawerTitle}>Lend "{book?.title}"</Text> */}
-              <Text style={styles.drawerSubtitle}>Enter guest details</Text>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}>
+              <Text className="text-xl font-bold text-gray-800 mb-2">Lend "{book?.title}"</Text>
+              <Text className="text-sm text-gray-600 mb-5">Enter guest details</Text>
 
-              <Text style={styles.label}>Full Name</Text>
+              <Text className="text-base font-medium text-gray-800 mb-2">Full Name</Text>
               <TextInput
-                style={styles.input}
+                className="bg-gray-100 h-12 rounded-lg px-4 text-base text-gray-800 border border-gray-200 mb-4"
                 placeholder="Patron's full name"
                 value={lendName}
                 onChangeText={setLendName}
                 autoCapitalize="words"
               />
 
-              <Text style={styles.label}>Email Address</Text>
+              <Text className="text-base font-medium text-gray-800 mb-2">Email Address</Text>
               <TextInput
-                style={styles.input}
+                className="bg-gray-100 h-12 rounded-lg px-4 text-base text-gray-800 border border-gray-200 mb-4"
                 placeholder="Patron's email address"
                 value={lendEmail}
                 onChangeText={setLendEmail}
@@ -281,13 +284,13 @@ const BookDetailsScreen = ({ navigation, route }) => {
                 autoCapitalize="none"
               />
 
-              <Text style={styles.label}>Phone Number</Text>
-              <View style={styles.phoneInputContainer}>
-                <View style={styles.phonePrefix}>
-                  <Text style={styles.phonePrefixText}>+63</Text>
+              <Text className="text-base font-medium text-gray-800 mb-2">Phone Number</Text>
+              <View className="flex-row items-center mb-4">
+                <View className="bg-gray-200 px-3 py-4 rounded-lg border border-gray-300 mr-2 h-12 justify-center">
+                  <Text className="text-base font-medium text-gray-800">+63</Text>
                 </View>
                 <TextInput
-                  style={styles.phoneInput}
+                  className="flex-1 bg-gray-100 h-12 rounded-lg px-4 text-base text-gray-800 border border-gray-200"
                   placeholder="XXXXXXXXX"
                   value={lendPhone}
                   onChangeText={(value) => setLendPhone(value.replace(/[^0-9]/g, ''))}
@@ -298,7 +301,7 @@ const BookDetailsScreen = ({ navigation, route }) => {
               <Button
                 mode="contained"
                 onPress={handleBorrowSubmit}
-                style={styles.lendSubmitButton}
+                className="bg-blue-500 mt-5 py-1"
                 disabled={lendLoading}
                 loading={lendLoading}
               >
@@ -307,7 +310,7 @@ const BookDetailsScreen = ({ navigation, route }) => {
               <Button
                 mode="text"
                 onPress={() => setShowLendDrawer(false)}
-                style={styles.cancelDrawerButton}
+                className="mt-2"
               >
                 Cancel
               </Button>
@@ -316,495 +319,168 @@ const BookDetailsScreen = ({ navigation, route }) => {
         </Modal>
       </Portal>
 
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.adminHeader}>
-          <Text style={styles.adminTitle}>Book Management</Text>
-          <View style={styles.adminActions}>
-            <IconButton icon="pencil" size={20} onPress={handleEditBook} />
-            <IconButton icon="trash-can-outline" size={20} onPress={() => setShowDeleteDialog(true)} iconColor="#FF3B30" />
+      <ScrollView className="flex-1 bg-gray-100">
+        <View className="p-4 pb-8">
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-lg font-bold text-gray-800">Book Management</Text>
+            <View className="flex-row">
+              <IconButton icon="pencil" size={20} onPress={handleEditBook} />
+              <IconButton icon="trash-can-outline" size={20} onPress={() => setShowDeleteDialog(true)} iconColor="#FF3B30" />
+            </View>
           </View>
-        </View>
 
-        <Card style={styles.card}>
-          <Card.Content>
-            <View style={styles.headerContainer}>
-              {book.imageUrl ? (
-                <Image source={{ uri: book.imageUrl }} style={styles.coverImage} resizeMode="cover" />
-              ) : (
-                <View style={styles.coverPlaceholder}>
-                  <MaterialCommunityIcons name="book-open-page-variant" size={64} color="#CCCCCC" />
-                </View>
-              )}
-              <View style={styles.headerInfo}>
-                <Title style={styles.title}>{book.title}</Title>
-                <View style={styles.authorContainer}>
-                  <Text style={styles.authorBy}>by </Text>
-                  {book.authorsData && Array.isArray(book.authorsData) && book.authorsData.length > 0 ? (
-                    book.authorsData.map((author, index) => (
-                      <View key={index} style={styles.authorItemContainer}>
-                        <TouchableOpacity
-                          onPress={() => navigation.navigate('AuthorDetails', { authorId: author.openLibrary_id, authorName: author.name })}
-                        >
-                          <Text style={styles.authorLink}>{author.name}</Text>
-                        </TouchableOpacity>
-                        {index < book.authorsData.length - 1 && <Text style={styles.authorBy}>, </Text>}
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.author}>{book.author}</Text>
+          <Card className="rounded-lg shadow-sm mb-4">
+            <Card.Content>
+              <View className="flex-row mb-4">
+                {book.imageUrl ? (
+                  <Image source={{ uri: book.imageUrl }} className="w-[120px] h-[180px] rounded-lg" resizeMode="cover" />
+                ) : (
+                  <View className="w-[120px] h-[180px] rounded-lg bg-gray-200 justify-center items-center">
+                    <MaterialCommunityIcons name="book-open-page-variant" size={64} color="#CCCCCC" />
+                  </View>
+                )}
+                <View className="ml-4 flex-1">
+                  <Title className="text-lg leading-6">{book.title}</Title>
+                  <View className="flex-row flex-wrap items-center">
+                    <Text className="text-sm text-gray-600">by </Text>
+                    {book.authorsData && Array.isArray(book.authorsData) && book.authorsData.length > 0 ? (
+                      book.authorsData.map((author, index) => (
+                        <View key={index} className="flex-row items-center">
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate('AuthorDetails', { authorId: author.openLibrary_id, authorName: author.name })}
+                          >
+                            <Text className="text-sm text-blue-500 underline">{author.name}</Text>
+                          </TouchableOpacity>
+                          {index < book.authorsData.length - 1 && <Text className="text-sm text-gray-600">, </Text>}
+                        </View>
+                      ))
+                    ) : (
+                      <Text className="text-sm text-gray-600">{book.author}</Text>
+                    )}
+                  </View>
+                  <TouchableOpacity className="flex-row items-center mt-2" onPress={() => setShowStatusDialog(true)}>
+                    <Text className="text-sm text-gray-600 mr-1">Status:</Text>
+                    <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: getStatusColor(book.status) }}>
+                      <Text className="text-white text-xs font-bold">
+                        {book.status ? book.status.charAt(0).toUpperCase() + book.status.slice(1) : 'Unknown'}
+                      </Text>
+                    </View>
+                    <MaterialCommunityIcons name="pencil-outline" size={14} color="#666666" className="ml-1" />
+                  </TouchableOpacity>
+                  {book.average_rating > 0 && (
+                    <View className="flex-row items-center mt-1">
+                      <StarRating rating={book.average_rating} count={book.ratings_count || 0} />
+                    </View>
+                  )}
+                  {(book.library_info?.library_qr || book.library_qr) && (
+                    <Button mode="outlined" icon="qrcode-scan" onPress={handleGenerateQR} className="mt-2 border-blue-500">
+                      View QR Code
+                    </Button>
                   )}
                 </View>
-                <TouchableOpacity style={styles.statusContainer} onPress={() => setShowStatusDialog(true)}>
-                  <Text style={styles.statusLabel}>Status:</Text>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(book.status) }]}>
-                    <Text style={styles.statusText}>
-                      {book.status ? book.status.charAt(0).toUpperCase() + book.status.slice(1) : 'Unknown'}
-                    </Text>
-                  </View>
-                  <MaterialCommunityIcons name="pencil-outline" size={14} color="#666666" style={{ marginLeft: 5 }} />
-                </TouchableOpacity>
-                {book.average_rating > 0 && (
-                  <View style={styles.ratingContainer}>
-                    <StarRating rating={book.average_rating} count={book.ratings_count || 0} style={{ marginTop: 5 }} />
+              </View>
+              <Divider className="my-4" />
+              <View className="mb-2">
+                <View className="flex-row mb-2">
+                  <Text className="w-20 text-sm text-gray-600">ISBN:</Text>
+                  <Text className="flex-1 text-sm text-gray-800">{book.isbn || 'N/A'}</Text>
+                </View>
+                <View className="flex-row mb-2">
+                  <Text className="w-20 text-sm text-gray-600">Publisher:</Text>
+                  <Text className="flex-1 text-sm text-gray-800">{book.publisher || 'N/A'}</Text>
+                </View>
+                <View className="flex-row mb-2">
+                  <Text className="w-20 text-sm text-gray-600">Published:</Text>
+                  <Text className="flex-1 text-sm text-gray-800">{book.published_date || 'N/A'}</Text>
+                </View>
+                <View className="flex-row mb-2">
+                  <Text className="w-20 text-sm text-gray-600">Pages:</Text>
+                  <Text className="flex-1 text-sm text-gray-800">{book.page_count || 'N/A'}</Text>
+                </View>
+                <View className="flex-row mb-2">
+                  <Text className="w-20 text-sm text-gray-600">Location:</Text>
+                  <Text className="flex-1 text-sm text-gray-800">{book.library_info.location || 'N/A'}</Text>
+                </View>
+                {(book.copy_count || book.available_copies) && (
+                  <View className="flex-row mb-2">
+                    <Text className="w-20 text-sm text-gray-600">Available:</Text>
+                    <Text className="flex-1 text-sm text-gray-800">{book.available_copies || 0} of {book.copy_count || 1}</Text>
                   </View>
                 )}
-                {(book.library_info?.library_qr || book.library_qr) && (
-                  <Button
-                    mode="outlined"
-                    icon="qrcode-scan"
-                    onPress={handleGenerateQR}
-                    style={[styles.searchButton, { marginTop: 10 }]}
-                  >
-                    View QR Code
-                  </Button>
+                {categories.length > 0 && (
+                  <View className="mt-1">
+                    <Text className="text-sm text-gray-600">Categories:</Text>
+                    <View className="flex-row flex-wrap mt-1">
+                      {(showAllCategories ? categories : categories.slice(0, 3)).map((category, index) => (
+                        <Chip key={index} className="mr-1 mb-1 bg-gray-200" textStyle={{ fontSize: 12 }}>
+                          {category}
+                        </Chip>
+                      ))}
+                      {categories.length > 3 && (
+                        <View className="w-full flex-row justify-end">
+                          <TouchableOpacity className="py-1 px-2 mt-1 mb-1" onPress={() => setShowAllCategories(!showAllCategories)}>
+                            <Text className="text-blue-500 text-sm font-medium">{showAllCategories ? 'Show Less' : 'Show More'}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  </View>
                 )}
               </View>
-            </View>
-            <Divider style={styles.divider} />
-            <View style={styles.detailsContainer}>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>ISBN:</Text>
-                <Text style={styles.detailValue}>{book.isbn || 'N/A'}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Publisher:</Text>
-                <Text style={styles.detailValue}>{book.publisher || 'N/A'}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Published:</Text>
-                <Text style={styles.detailValue}>{book.published_date || 'N/A'}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Pages:</Text>
-                <Text style={styles.detailValue}>{book.page_count || 'N/A'}</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Location:</Text>
-                <Text style={styles.detailValue}>{book.library_info.location || 'N/A'}</Text>
-              </View>
-              {(book.copy_count || book.available_copies) && (
+              {book.description && (
                 <>
-                  {/* <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Copies:</Text>
-                    <Text style={styles.detailValue}>{book.copy_count || 1}</Text>
-                  </View> */}
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Available:</Text>
-                    <Text style={styles.detailValue}>{book.available_copies || 0} of {book.copy_count || 1}</Text>
+                  <Divider className="my-4" />
+                  <View className="mb-2">
+                    <Text className="text-base font-bold text-gray-800">Description</Text>
+                    <Text className="text-sm text-gray-800 leading-5">{book.description}</Text>
                   </View>
                 </>
               )}
-              {categories.length > 0 && (
-                <View style={styles.categoriesContainer}>
-                  <Text style={styles.detailLabel}>Categories:</Text>
-                  <View style={styles.categoriesWrapper}>
-                    {(showAllCategories ? categories : categories.slice(0, 3)).map((category, index) => (
-                      <Chip key={index} style={styles.categoryChip} textStyle={styles.categoryChipText}>
-                        {category}
-                      </Chip>
-                    ))}
-                    {categories.length > 3 && (
-                      <View style={styles.showMoreContainer}>
-                        <TouchableOpacity onPress={() => setShowAllCategories(!showAllCategories)} style={styles.showMoreButton}>
-                          <Text style={styles.showMoreButtonText}>{showAllCategories ? 'Show Less' : 'Show More'}</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                </View>
+            </Card.Content>
+          </Card>
+
+          <Card className="rounded-lg shadow-sm mt-0">
+            <Card.Content>
+              <View className="mb-4">
+                <Text className="text-base font-bold text-gray-800">Loan History</Text>
+              </View>
+              {historyLoading ? (
+                <ActivityIndicator size="small" color="#4A90E2" className="my-5" />
+              ) : loanHistory.length > 0 ? (
+                <>
+                  {loanHistory.slice(0, 3).map((borrow, index) => (
+                    <React.Fragment key={index}>
+                      <LoanedBook borrow={borrow} />
+                      {index < Math.min(3, loanHistory.length) - 1 && <Divider className="my-2" />}
+                    </React.Fragment>
+                  ))}
+                  {loanHistory.length > 3 && (
+                    <TouchableOpacity
+                      className="mt-2 py-2 items-center"
+                      onPress={() => navigation.navigate('BorrowingHistory', { book_id: book_id })}
+                    >
+                      <Text className="text-blue-500 font-medium">See More</Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              ) : (
+                <Text className="text-center text-gray-500 italic my-5">No borrowing history available</Text>
               )}
-            </View>
-            {book.description && (
-              <>
-                <Divider style={styles.divider} />
-                <View style={styles.descriptionContainer}>
-                  <Text style={styles.descriptionTitle}>Description</Text>
-                  <Text style={styles.descriptionText}>{book.description}</Text>
-                </View>
-              </>
-            )}
-          </Card.Content>
-        </Card>
+            </Card.Content>
+          </Card>
 
-        <Card style={[styles.card, styles.historyCard]}>
-          <Card.Content>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Loan History</Text>
-            </View>
-            {historyLoading ? (
-              <ActivityIndicator size="small" color="#4A90E2" style={{ marginVertical: 20 }} />
-            ) : loanHistory.length > 0 ? (
-              <>
-                {loanHistory.slice(0, 3).map((borrow, index) => (
-                  <React.Fragment key={index}>
-                    <LoanedBook borrow={borrow} />
-                    {index < Math.min(3, loanHistory.length) - 1 && <Divider style={styles.historyDivider} />}
-                  </React.Fragment>
-                ))}
-                {loanHistory.length > 3 && (
-                  <TouchableOpacity
-                    style={styles.seeMoreButton}
-                    onPress={() => navigation.navigate('BorrowingHistory', { book_id: book_id })}
-                  >
-                    <Text style={styles.seeMoreText}>See More</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            ) : (
-              <Text style={styles.noHistoryText}>No borrowing history available</Text>
-            )}
-          </Card.Content>
-        </Card>
-
-        <View style={styles.actionButtons}>
-          <Button
-            mode="outlined"
-            icon="book-arrow-right" // Updated icon as recommended
-            onPress={handleLendBook}
-            style={styles.lendButton}
-          >
-            Lend Book
-          </Button>
-          <Button
-            mode="outlined"
-            icon="magnify"
-            onPress={handleSearchOnline}
-            style={styles.searchButton}
-          >
-            Search Online
-          </Button>
+          <View className="mt-1">
+            <Button mode="outlined" icon="book-arrow-right" onPress={handleLendBook} className="mb-2 border-blue-500">
+              Lend Book
+            </Button>
+            <Button mode="outlined" icon="magnify" onPress={handleSearchOnline} className="mt-1 border-blue-500">
+              Search Online
+            </Button>
+          </View>
         </View>
       </ScrollView>
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  contentContainer: {
-    padding: 15,
-    paddingBottom: 30,
-  },
-  adminHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  adminTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  adminActions: {
-    flexDirection: 'row',
-  },
-  card: {
-    borderRadius: 10,
-    elevation: 2,
-    marginBottom: 15,
-  },
-  historyCard: {
-    marginTop: 0,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  coverImage: {
-    width: 120,
-    height: 180,
-    borderRadius: 8,
-  },
-  coverPlaceholder: {
-    width: 120,
-    height: 180,
-    borderRadius: 8,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerInfo: {
-    marginLeft: 15,
-    flex: 1,
-  },
-  title: {
-    fontSize: 18,
-    lineHeight: 24,
-  },
-  author: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  authorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  authorItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorBy: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  authorLink: {
-    fontSize: 14,
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  statusLabel: {
-    fontSize: 14,
-    color: '#666666',
-    marginRight: 5,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  divider: {
-    marginVertical: 15,
-  },
-  detailsContainer: {
-    marginBottom: 10,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  detailLabel: {
-    width: 80,
-    fontSize: 14,
-    color: '#666666',
-  },
-  detailValue: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333333',
-  },
-  categoriesContainer: {
-    marginTop: 5,
-  },
-  categoriesWrapper: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 5,
-  },
-  categoryChip: {
-    marginRight: 5,
-    marginBottom: 5,
-    backgroundColor: '#F0F0F0',
-  },
-  categoryChipText: {
-    fontSize: 12,
-  },
-  showMoreContainer:{
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  showMoreButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  showMoreButtonText: {
-    color: '#4A90E2',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  descriptionContainer: {
-    marginBottom: 10,
-  },
-  descriptionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333333',
-  },
-  descriptionText: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#333333',
-  },
-  sectionHeader: {
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  noHistoryText: {
-    textAlign: 'center',
-    color: '#999999',
-    fontStyle: 'italic',
-    marginVertical: 20,
-  },
-  actionButtons: {
-    marginTop: 5,
-  },
-  lendButton: {
-    borderColor: '#4A90E2',
-    marginBottom: 10,
-  },
-  searchButton: {
-    marginTop: 5,
-    borderColor: '#4A90E2',
-  },
-  statusOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  statusDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    marginRight: 10,
-  },
-  statusOptionText: {
-    fontSize: 16,
-  },
-  seeMoreButton: {
-    marginTop: 10,
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  seeMoreText: {
-    color: '#4A90E2',
-    fontWeight: '500',
-  },
-  // Drawer-specific styles
-  modalStyle: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  drawerContainer: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: Dimensions.get('window').height * 0.6, // 60% of screen height
-    paddingTop: 20,
-  },
-  drawerContent: {
-    flex: 1,
-  },
-  drawerScrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  drawerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  drawerSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#F9F9F9',
-    height: 50,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-    marginBottom: 16,
-  },
-  phoneInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  phonePrefix: {
-    backgroundColor: '#F0F0F0',
-    paddingHorizontal: 12,
-    paddingVertical: 16,
-    borderRadius: 8,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: '#DDDDDD',
-    height: 50,
-    justifyContent: 'center',
-  },
-  phonePrefixText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333333',
-  },
-  phoneInput: {
-    flex: 1,
-    backgroundColor: '#F9F9F9',
-    height: 50,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  lendSubmitButton: {
-    backgroundColor: '#4A90E2',
-    marginTop: 20,
-    paddingVertical: 5,
-  },
-  cancelDrawerButton: {
-    marginTop: 10,
-  },
-});
 
 export default BookDetailsScreen;

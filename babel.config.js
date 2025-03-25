@@ -3,6 +3,7 @@ module.exports = function(api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
+      'nativewind/babel',
       [
         'module:react-native-dotenv',
         {
@@ -16,7 +17,7 @@ module.exports = function(api) {
           verbose: false,
         }
       ],
-      'react-native-reanimated/plugin' // Reanimated plugin doesn’t need config options
+      'react-native-reanimated/plugin'
     ],
   };
 };

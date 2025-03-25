@@ -4,7 +4,7 @@ import { Card, Title, Paragraph } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getBookCoverUrl } from '../../services/bookService';
 
-const FeaturedBook = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=false }) => {
+const FeaturedBook = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = false }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'available':
@@ -20,7 +20,7 @@ const FeaturedBook = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=
 
   const handleCardPress = () => {
     if (bookNavigateTo && navigation) {
-      navigation.navigate(bookNavigateTo, { book_id: book.id, });
+      navigation.navigate(bookNavigateTo, { book_id: book.id });
     }
   };
 
@@ -34,46 +34,44 @@ const FeaturedBook = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=
   };
 
   return (
-    <TouchableOpacity
-      onPress={handleCardPress}
-    >
-      <Card style={styles.featuredCard}>
+    <TouchableOpacity onPress={handleCardPress}>
+      <Card className="w-[150px] mx-1.5 shadow">
         <Card.Cover
           source={{
             uri: getBookCoverUrl(book) || 'https://via.placeholder.com/150x200?text=No+Cover'
           }}
-          style={styles.featuredCardImage}
+          className="h-[200px] rounded-t-lg"
         />
-        <Card.Content style={styles.featuredCardContent}>
-          <Title numberOfLines={1} style={styles.featuredCardTitle}>
+        <Card.Content className="p-2 pb-2.5">
+          <Title numberOfLines={1} className="text-sm leading-[18px]">
             {book.title}
           </Title>
-          <View style={styles.authorContainer}>
+          <View className="flex-row flex-wrap items-center">
             {book.authorsData && Array.isArray(book.authorsData) && book.authorsData.length > 0 ? (
               book.authorsData.map((author, index) => (
-                <View key={index} style={styles.authorItemContainer}>
+                <View key={index} className="flex-row items-center">
                   <TouchableOpacity onPress={() => handleAuthorPress(author)}>
-                    <Text style={styles.authorLink} numberOfLines={1}>
+                    <Text className="text-xs leading-4 text-primary underline" numberOfLines={1}>
                       {index === 0 ? '' : ', '}{author.name}
                     </Text>
                   </TouchableOpacity>
                 </View>
               ))
             ) : (
-              <Paragraph numberOfLines={1} style={styles.featuredCardAuthor}>
+              <Paragraph numberOfLines={1} className="text-xs leading-4">
                 {book.author}
               </Paragraph>
             )}
           </View>
-          <View style={styles.bookStats}>
-            <View style={styles.bookStat}>
+          <View className="flex-row justify-between mt-2.5">
+            <View className="flex-row items-center">
               <MaterialCommunityIcons name="book-open-page-variant" size={16} color="#4A90E2" />
-              <Text style={styles.bookStatText}>{book.loan_count? book.loan_count : 0}</Text>
+              <Text className="ml-1.5 text-sm text-gray-600">{book.loan_count ? book.loan_count : 0}</Text>
             </View>
             {book.average_rating > 0 && (
-              <View style={styles.bookStat}>
+              <View className="flex-row items-center">
                 <MaterialCommunityIcons name="star" size={16} color="#FF9500" />
-                <Text style={styles.bookStatText}>{book.average_rating.toFixed(1)}</Text>
+                <Text className="ml-1.5 text-sm text-gray-600">{book.average_rating.toFixed(1)}</Text>
               </View>
             )}
           </View>
@@ -81,72 +79,6 @@ const FeaturedBook = ({ book, navigation,bookNavigateTo,authorNavigateTo, admin=
       </Card>
     </TouchableOpacity>
   );
-};
-
-const styles = {
-  featuredCard: {
-    width: 150,
-    marginHorizontal: 5,
-    elevation: 3,
-    // overflow: 'hidden',
-  },
-  featuredCardImage: {
-    height: 200,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-  },
-  featuredCardContent: {
-    padding: 8,
-    paddingBottom: 10,
-  },
-  featuredCardTitle: {
-    fontSize: 14,
-    lineHeight: 18,
-  },
-  featuredCardAuthor: {
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  authorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  authorItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorLink: {
-    fontSize: 12,
-    lineHeight: 16,
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  ratingText: {
-    fontSize: 12,
-    marginLeft: 3,
-    color: '#666666',
-  },
-
-  bookStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  bookStat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bookStatText: {
-    marginLeft: 5,
-    fontSize: 14,
-    color: '#666666',
-  },
 };
 
 export default FeaturedBook;

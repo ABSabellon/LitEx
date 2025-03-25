@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -30,46 +29,10 @@ const AdminRegisterScreen = ({ navigation, route }) => {
   const { signUp } = useAuth();
   
   const handleRegister = async () => {
-    // Validate inputs
-    // if (!name || !email || !password || !confirmPassword || !inviteCode) {
-    //   Alert.alert('Error', 'Please fill in all fields');
-    //   return;
-    // }
-    
-    // if (password !== confirmPassword) {
-    //   Alert.alert('Error', 'Passwords do not match');
-    //   return;
-    // }
-    
-    // if (password.length < 6) {
-    //   Alert.alert('Error', 'Password should be at least 6 characters');
-    //   return;
-    // }
-    
     try {
       setLoading(true);
-      // setVerifying(true);
-      
-      // First verify the invite code
-      // const isValid = await verifyAdminInviteCode(inviteCode, email);
-      
-      // if (!isValid) {
-      //   Alert.alert(
-      //     'Invalid Invite Code',
-      //     'The invite code you entered is invalid or has expired. Please contact the library management for a valid code.'
-      //   );
-      //   setVerifying(false);
-      //   setLoading(false);
-      //   return;
-      // }
-      
-      // setVerifying(false);
-      
-      // Create the admin user
-      // await signUp(email, password, name, 'admin', phone);
       await signUp('supertest@test.com', 'tup5ab8e', 'super tester', 'admin', '09178181996');
       
-
       console.log('Admin registration complete - navigating directly to Admin screen');
       
       setTimeout(() => {
@@ -85,10 +48,8 @@ const AdminRegisterScreen = ({ navigation, route }) => {
     }
   };
   
-  // Use effect to cleanup loading state when component unmounts
   useEffect(() => {
     return () => {
-      // Reset loading state when component unmounts
       setLoading(false);
     };
   }, []);
@@ -96,45 +57,44 @@ const AdminRegisterScreen = ({ navigation, route }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      className="flex-1 bg-white"
     >
-      {/* Use centralized loading overlay with dynamic message */}
       <LoadingOverlay
         visible={loading}
         message={verifying ? 'Verifying invitation code...' : 'Creating your admin account...'}
       />
       
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.headerContainer}>
+      <ScrollView className="flex-1 px-5" contentContainerStyle={{ flexGrow: 1 }}>
+        <View className={`flex-row items-center mb-5 ${Platform.OS === 'ios' ? 'mt-10' : 'mt-5'}`}>
           <TouchableOpacity
-            style={styles.backButton}
+            className="mr-2.5"
             onPress={() => navigation.goBack()}
           >
             <MaterialCommunityIcons name="arrow-left" size={24} color="#333333" />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Create Admin Account</Text>
+          <Text className="text-[22px] font-bold text-gray-800">Create Admin Account</Text>
         </View>
         
-        <Card style={styles.infoCard}>
+        <Card className="mb-5 rounded-lg bg-[#FFF9EF] border border-warning">
           <Card.Content>
-            <View style={styles.infoHeader}>
+            <View className="flex-row items-center mb-2.5">
               <MaterialCommunityIcons name="shield-account" size={24} color="#FF9500" />
-              <Text style={styles.infoTitle}>Admin Registration</Text>
+              <Text className="ml-2.5 text-base font-bold text-gray-800">Admin Registration</Text>
             </View>
-            <Paragraph style={styles.infoParagraph}>
+            <Paragraph className="text-sm text-gray-600 leading-5">
               This registration is only for library administrators. You'll need a valid invite code 
               that was sent to your email. If you're a borrower, please use the Borrower Registration.
             </Paragraph>
           </Card.Content>
         </Card>
         
-        <View style={styles.formContainer}>
+        <View className="w-full">
           <TextInput
             label="Full Name"
             value={name}
             onChangeText={setName}
             mode="outlined"
-            style={styles.input}
+            className="mb-4"
             autoCapitalize="words"
             left={<TextInput.Icon icon="account" />}
           />
@@ -144,7 +104,7 @@ const AdminRegisterScreen = ({ navigation, route }) => {
             value={email}
             onChangeText={setEmail}
             mode="outlined"
-            style={styles.input}
+            className="mb-4"
             keyboardType="email-address"
             autoCapitalize="none"
             left={<TextInput.Icon icon="email" />}
@@ -155,7 +115,7 @@ const AdminRegisterScreen = ({ navigation, route }) => {
             value={phone}
             onChangeText={setPhone}
             mode="outlined"
-            style={styles.input}
+            className="mb-4"
             keyboardType="phone-pad"
             left={<TextInput.Icon icon="phone" />}
           />
@@ -165,7 +125,7 @@ const AdminRegisterScreen = ({ navigation, route }) => {
             value={password}
             onChangeText={setPassword}
             mode="outlined"
-            style={styles.input}
+            className="mb-4"
             secureTextEntry={secureTextEntry}
             autoCapitalize="none"
             left={<TextInput.Icon icon="lock" />}
@@ -182,7 +142,7 @@ const AdminRegisterScreen = ({ navigation, route }) => {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             mode="outlined"
-            style={styles.input}
+            className="mb-4"
             secureTextEntry={secureConfirmTextEntry}
             autoCapitalize="none"
             left={<TextInput.Icon icon="lock-check" />}
@@ -199,36 +159,37 @@ const AdminRegisterScreen = ({ navigation, route }) => {
             value={inviteCode}
             onChangeText={setInviteCode}
             mode="outlined"
-            style={[styles.input, styles.inviteInput]}
+            className="mb-1 bg-gray-50"
+            style={{ borderColor: '#FF9500' }}
             autoCapitalize="none"
             left={<TextInput.Icon icon="key" />}
           />
           
-          <Text style={styles.inviteNote}>
+          <Text className="text-xs text-gray-400 italic mb-5 pl-1.5">
             *The invite code was sent to your email by the library management
           </Text>
           
           <Button 
             mode="contained" 
             onPress={handleRegister}
-            style={styles.button}
+            className="py-1.5 bg-warning"
             loading={loading}
             disabled={loading}
           >
             {verifying ? 'Verifying Code...' : 'Create Admin Account'}
           </Button>
           
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account? </Text>
+          <View className="flex-row justify-center mt-5">
+            <Text className="text-gray-800">Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Log In</Text>
+              <Text className="text-primary font-bold">Log In</Text>
             </TouchableOpacity>
           </View>
           
-          <View style={styles.switchContainer}>
-            <Text style={styles.switchText}>Are you a borrower? </Text>
+          <View className="flex-row justify-center mt-4 p-4 bg-gray-100 rounded-lg">
+            <Text className="text-gray-800">Are you a borrower? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('BorrowerRegister')}>
-              <Text style={styles.switchLink}>Register as Borrower</Text>
+              <Text className="text-primary font-bold">Register as Borrower</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -236,103 +197,5 @@ const AdminRegisterScreen = ({ navigation, route }) => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  // Removed redundant loading styles
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: Platform.OS === 'ios' ? 40 : 20,
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  infoCard: {
-    marginBottom: 20,
-    borderRadius: 10,
-    backgroundColor: '#FFF9EF',
-    borderColor: '#FF9500',
-    borderWidth: 1,
-  },
-  infoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  infoTitle: {
-    marginLeft: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  infoParagraph: {
-    fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
-  },
-  formContainer: {
-    width: '100%',
-  },
-  input: {
-    marginBottom: 15,
-  },
-  inviteInput: {
-    backgroundColor: '#F9F9F9',
-    borderColor: '#FF9500',
-  },
-  inviteNote: {
-    fontSize: 12,
-    color: '#999999',
-    fontStyle: 'italic',
-    marginTop: -10,
-    marginBottom: 20,
-    paddingLeft: 5,
-  },
-  button: {
-    padding: 5,
-    backgroundColor: '#FF9500',
-  },
-  loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  loginText: {
-    color: '#333333',
-  },
-  loginLink: {
-    color: '#4A90E2',
-    fontWeight: 'bold',
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 15,
-    padding: 15,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-  },
-  switchText: {
-    color: '#333333',
-  },
-  switchLink: {
-    color: '#4A90E2',
-    fontWeight: 'bold',
-  },
-});
 
 export default AdminRegisterScreen;

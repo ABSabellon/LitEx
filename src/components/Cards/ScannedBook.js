@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getBookCoverUrl } from '../../services/bookService';
@@ -16,133 +16,61 @@ const ScannedBook = ({ data, copyCount, onDelete, onAdd }) => {
   const ratingAverage = ratings.summary?.average || 0;
 
   useEffect(() => {
-    // console.log('data :: ', data);
     // Add any side effects if needed when data changes
   }, [data]);
 
   return (
-    <View style={styles.card}>
+    <View className="flex-row items-center p-2.5 bg-white rounded-lg my-1.5 shadow">
       {/* Left: Cover Image */}
       {getBookCoverUrl(book) ? (
         <Image
           source={{ uri: getBookCoverUrl(book) }}
-          style={styles.bookCover}
+          className="w-[60px] h-[90px] rounded mr-2.5"
           resizeMode="cover"
         />
       ) : (
-        <View style={styles.bookCoverPlaceholder}>
+        <View className="w-[60px] h-[90px] rounded mr-2.5 bg-gray-100 justify-center items-center">
           <MaterialCommunityIcons name="book-open-page-variant" size={40} color="#CCCCCC" />
         </View>
       )}
 
       {/* Middle: Book Details */}
-      <View style={styles.detailsContainer}>
-        <View style={styles.row}>
-          {copyCount && <Chip style={styles.copyChip} textStyle={styles.copyText}>
-            {copyCount}x
-          </Chip>}
-          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+      <View className="flex-1 justify-center mr-2.5">
+        <View className="flex-row items-center flex-wrap">
+          {copyCount && 
+            <Chip 
+              className="bg-gray-200 mr-2"
+              textStyle="text-xs font-bold text-gray-800"
+            >
+              {copyCount}x
+            </Chip>
+          }
+          <Text className="text-base font-semibold text-gray-800 flex-shrink-1" numberOfLines={2} ellipsizeMode="tail">
             {title}
           </Text>
         </View>
-        <Text style={styles.author}>
-          By <Text style={styles.authorName}>{authorName}</Text>
+        <Text className="text-sm text-gray-600 my-0.5">
+          By <Text className="text-gray-600">{authorName}</Text>
         </Text>
-        <View style={styles.ratingContainer}>
+        <View className="flex-row items-center">
           <MaterialCommunityIcons name="star" size={16} color="#FFD700" />
-          <Text style={styles.ratingText}>{ratingAverage.toFixed(1)}</Text>
+          <Text className="text-sm text-gray-800 ml-1">{ratingAverage.toFixed(1)}</Text>
         </View>
       </View>
 
       {/* Right: Plus and Delete Buttons */}
-      <View style={styles.buttonContainer}>
+      <View className="items-center justify-center w-[50px]">
         {onAdd && 
-          <TouchableOpacity onPress={onAdd} style={styles.addButton}>
+          <TouchableOpacity onPress={onAdd} className="p-1.5 mb-1.5">
             <MaterialCommunityIcons name="plus" size={24} color="#4A90E2" />
           </TouchableOpacity>
         }
-        <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+        <TouchableOpacity onPress={onDelete} className="p-1.5">
           <MaterialCommunityIcons name="trash-can-outline" size={24} color="#FF3B30" />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginVertical: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  coverImage: {
-    width: 60,
-    height: 90,
-    borderRadius: 4,
-    marginRight: 10,
-  },
-  detailsContainer: {
-    flex: 1, // Takes available space but respects boundaries
-    justifyContent: 'center',
-    marginRight: 10, // Adds space between details and buttons
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap', // Allows title to wrap to next line
-  },
-  copyChip: {
-    backgroundColor: '#E0E0E0',
-    marginRight: 8,
-  },
-  copyText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    flexShrink: 1, // Allows title to shrink and wrap
-  },
-  author: {
-    fontSize: 14,
-    color: '#666',
-    marginVertical: 2,
-  },
-  authorName: {
-    color: '#666',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ratingText: {
-    fontSize: 14,
-    color: '#333',
-    marginLeft: 4,
-  },
-  buttonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 50, // Fixed width to prevent overlap
-  },
-  addButton: {
-    padding: 5,
-    marginBottom: 5,
-  },
-  deleteButton: {
-    padding: 5,
-  },
-});
 
 export default ScannedBook;

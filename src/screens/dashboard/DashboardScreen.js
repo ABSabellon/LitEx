@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Card, Title, Paragraph, Button, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import {getAllBooks,getLoanedBooks,getMostLoanedBooks} from '../../services/bookService';
-import {getActiveLoans, getOverdueLoans} from '../../services/loanService';
+import { getAllBooks, getLoanedBooks, getMostLoanedBooks } from '../../services/bookService';
+import { getActiveLoans, getOverdueLoans } from '../../services/loanService';
 import FeaturedBook from '../../components/cards/FeaturedBook';
 
 const DashboardScreen = ({ navigation }) => {
@@ -18,35 +18,25 @@ const DashboardScreen = ({ navigation }) => {
     overdueLoans: 0,
   });
   const [popularBooks, setPopularBooks] = useState([]);
-  
+
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      
-      // Get all books
+
       const books = await getAllBooks();
-      
-      // Get loaned books
       const loaned = await getLoanedBooks();
-      
-      // Get active borrows
       const activeLoans = await getActiveLoans();
-      
-      // Get overdue borrows
       const overdueLoans = await getOverdueLoans();
-      
-      // Get most loaned books
       const mostLoaned = await getMostLoanedBooks(5);
-      
+
       setStats({
         totalBooks: books.length,
         loanedBooks: loaned.length,
         activeLoans: activeLoans.length,
         overdueLoans: overdueLoans.length,
       });
-      
+
       setPopularBooks(mostLoaned);
-      
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -54,20 +44,19 @@ const DashboardScreen = ({ navigation }) => {
       setRefreshing(false);
     }
   };
-  
+
   const onRefresh = () => {
     setRefreshing(true);
     loadDashboardData();
   };
-  
+
   useEffect(() => {
-    // console.log('currentUser :: ', currentUser)
     loadDashboardData();
   }, []);
-  
+
   return (
-    <ScrollView 
-      style={styles.container}
+    <ScrollView
+      className="flex-1 bg-gray-100"
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -76,92 +65,90 @@ const DashboardScreen = ({ navigation }) => {
         />
       }
     >
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Welcome, {currentUser?.display_name || 'User'}</Text>
-        <Text style={styles.date}>{new Date().toDateString()}</Text>
+      <View className="p-5 bg-blue-600 pb-11">
+        <Text className="text-2xl font-bold text-white">
+          Welcome, {currentUser?.display_name || 'User'}
+        </Text>
+        <Text className="text-sm text-white opacity-80 mt-1">
+          {new Date().toDateString()}
+        </Text>
       </View>
-      
-      <View style={styles.statsContainer}>
-        <Card style={styles.statsCard}>
+
+      <View className="mt-[-30px] mx-5">
+        <Card className="shadow-md rounded-lg">
           <Card.Content>
-            <View style={styles.statRow}>
-              <View style={styles.statItem}>
+            <View className="flex-row justify-between my-2.5">
+              <View className="items-center w-[45%]">
                 <MaterialCommunityIcons name="book-multiple" size={32} color="#4A90E2" />
-                <Text style={styles.statValue}>{stats.totalBooks}</Text>
-                <Text style={styles.statLabel}>Total Books</Text>
+                <Text className="text-2xl font-bold mt-1 text-gray-800">{stats.totalBooks}</Text>
+                <Text className="text-sm text-gray-600">Total Books</Text>
               </View>
-              
-              <View style={styles.statItem}>
+              <View className="items-center w-[45%]">
                 <MaterialCommunityIcons name="book-open-variant" size={32} color="#FF9500" />
-                <Text style={styles.statValue}>{stats.loanedBooks}</Text>
-                <Text style={styles.statLabel}>Loaned</Text>
+                <Text className="text-2xl font-bold mt-1 text-gray-800">{stats.loanedBooks}</Text>
+                <Text className="text-sm text-gray-600">Loaned</Text>
               </View>
             </View>
-            
-            <View style={styles.statRow}>
-              <View style={styles.statItem}>
+            <View className="flex-row justify-between my-2.5">
+              <View className="items-center w-[45%]">
                 <MaterialCommunityIcons name="account-multiple" size={32} color="#4CD964" />
-                <Text style={styles.statValue}>{stats.activeLoans}</Text>
-                <Text style={styles.statLabel}>Active Loans</Text>
+                <Text className="text-2xl font-bold mt-1 text-gray-800">{stats.activeLoans}</Text>
+                <Text className="text-sm text-gray-600">Active Loans</Text>
               </View>
-              
-              <View style={styles.statItem}>
+              <View className="items-center w-[45%]">
                 <MaterialCommunityIcons name="alert-circle" size={32} color="#FF3B30" />
-                <Text style={styles.statValue}>{stats.overdueLoans}</Text>
-                <Text style={styles.statLabel}>Overdue</Text>
+                <Text className="text-2xl font-bold mt-1 text-gray-800">{stats.overdueLoans}</Text>
+                <Text className="text-sm text-gray-600">Overdue</Text>
               </View>
             </View>
           </Card.Content>
         </Card>
       </View>
-      
-      <View style={styles.actionsContainer}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity 
-            style={styles.actionButton}
+
+      <View className="mt-5 mx-5">
+        <Text className="text-lg font-bold mb-2.5 text-gray-800">Quick Actions</Text>
+        <View className="flex-row flex-wrap justify-between">
+          <TouchableOpacity
+            className="w-[48%] bg-blue-600 p-4 rounded-lg items-center mb-2.5"
             onPress={() => navigation.navigate('DashboardTab', { screen: 'ScanQR' })}
           >
             <MaterialCommunityIcons name="qrcode-scan" size={32} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Lend Book</Text>
+            <Text className="text-white mt-1 font-bold">Lend Book</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.actionButton}
+          <TouchableOpacity
+            className="w-[48%] bg-blue-600 p-4 rounded-lg items-center mb-2.5"
             onPress={() => navigation.navigate('DashboardTab', { screen: 'ScanBook' })}
           >
             <MaterialCommunityIcons name="barcode-scan" size={32} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Add Book</Text>
+            <Text className="text-white mt-1 font-bold">Add Book</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.actionButton}
+          <TouchableOpacity
+            className="w-[48%] bg-blue-600 p-4 rounded-lg items-center mb-2.5"
             onPress={() => navigation.navigate('LoanedTab')}
           >
             <MaterialCommunityIcons name="account-multiple" size={32} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Readers</Text>
+            <Text className="text-white mt-1 font-bold">Readers</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.actionButton}
+          <TouchableOpacity
+            className="w-[48%] bg-blue-600 p-4 rounded-lg items-center mb-2.5"
             onPress={() => navigation.navigate('ReportsTab')}
           >
             <MaterialCommunityIcons name="chart-bar" size={32} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Reports</Text>
+            <Text className="text-white mt-1 font-bold">Reports</Text>
           </TouchableOpacity>
         </View>
       </View>
-      
-      <View style={styles.popularBooksContainer}>
-        <Text style={styles.sectionTitle}>Most Popular Books</Text>
+
+      <View className="mt-5 mx-5 mb-5">
+        <Text className="text-lg font-bold mb-2.5 text-gray-800">Most Popular Books</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.featuredBooksContainer}
+          contentContainerStyle={{ paddingHorizontal: 15, paddingBottom: 5 }}
         >
           {popularBooks.length > 0 ? (
             popularBooks.data.map((book) => (
-              <FeaturedBook 
+              <FeaturedBook
                 key={book.id}
                 book={book}
                 navigation={navigation}
@@ -170,14 +157,13 @@ const DashboardScreen = ({ navigation }) => {
               />
             ))
           ) : (
-            <Text style={styles.noDataText}>No borrowing data available yet</Text>
+            <Text className="text-center text-gray-400 my-5 italic">No borrowing data available yet</Text>
           )}
         </ScrollView>
-        
-        <Button 
-          mode="text" 
+        <Button
+          mode="text"
           onPress={() => navigation.navigate('ReportsTab')}
-          style={styles.viewAllButton}
+          className="mt-2.5"
         >
           View All Reports
         </Button>
@@ -185,118 +171,5 @@ const DashboardScreen = ({ navigation }) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#4A90E2',
-    paddingBottom: 45,
-  },
-  greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  date: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.8,
-    marginTop: 5,
-  },
-  statsContainer: {
-    marginTop: -30,
-    marginHorizontal: 20,
-  },
-  statsCard: {
-    elevation: 4,
-    borderRadius: 10,
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 10,
-  },
-  statItem: {
-    alignItems: 'center',
-    width: '45%',
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 5,
-    color: '#333333',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  actionsContainer: {
-    marginTop: 20,
-    marginHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333333',
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    width: '48%',
-    backgroundColor: '#4A90E2',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  actionButtonText: {
-    color: '#FFFFFF',
-    marginTop: 5,
-    fontWeight: 'bold',
-  },
-  popularBooksContainer: {
-    marginTop: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-  },
-  featuredBooksContainer: {
-    paddingHorizontal: 15,
-    paddingBottom: 5,
-  },
-  noDataText: {
-    textAlign: 'center',
-    color: '#999999',
-    marginVertical: 20,
-    fontStyle: 'italic',
-  },
-  viewAllButton: {
-    marginTop: 10,
-  },
-  authorLink: {
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
-    fontWeight: '500',
-  },
-  authorContainer: {
-    marginBottom: 5,
-  },
-  authorRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  authorItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-});
 
 export default DashboardScreen;

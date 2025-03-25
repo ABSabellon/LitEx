@@ -71,7 +71,7 @@ const ReportsStack = () => (
 const ProfileStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="AdminProfile" component={ProfileScreen} options={{ title: 'My Profile' }} />
-    </Stack.Navigator>
+  </Stack.Navigator>
 );
 
 const UserNavigator = () => {
@@ -85,6 +85,12 @@ const UserNavigator = () => {
           marginBottom: 3,
         },
         headerShown: false,
+        tabBarStyle: {
+          className: 'bg-white shadow-md'
+        },
+        tabBarItemStyle: {
+          className: 'py-1'
+        }
       }}
     >
       <Tab.Screen 
@@ -127,16 +133,6 @@ const UserNavigator = () => {
           ),
         }}
       />
-      {/* <Tab.Screen 
-        name="ReportsTab" 
-        component={ReportsStack} 
-        options={{
-          tabBarLabel: 'Reports',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="chart-bar" color={color} size={size} />
-          ),
-        }}
-      /> */}
       <Tab.Screen 
         name="ProfileTab" 
         component={ProfileStack} 

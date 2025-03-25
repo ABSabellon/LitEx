@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const StarRating = ({ rating, count, style }) => {
@@ -54,30 +54,15 @@ const StarRating = ({ rating, count, style }) => {
   };
   
   return (
-    <View style={[styles.container, style]}>
-      <View style={styles.starsContainer}>
+    <View className="flex-row items-center" style={style}>
+      <View className="flex-row mr-1.5">
         {renderStars()}
       </View>
-      <Text style={styles.ratingText}>
+      <Text className="text-sm text-gray-600">
         {safeRating.toFixed(2)} {count ? `(${count})` : ''}
       </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  starsContainer: {
-    flexDirection: 'row',
-    marginRight: 5,
-  },
-  ratingText: {
-    fontSize: 14,
-    color: '#666666',
-  }
-});
 
 export default StarRating;

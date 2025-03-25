@@ -2,8 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  Image,
   TouchableOpacity
 } from 'react-native';
 import { Button } from 'react-native-paper';
@@ -12,7 +10,6 @@ import { CommonActions } from '@react-navigation/native';
 
 const AuthPromptScreen = ({ navigation }) => {
   const navigateToAuth = (screen) => {
-    // Navigate to the auth stack and specified screen
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -29,22 +26,24 @@ const AuthPromptScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.iconContainer}>
+    <View className="flex-1 p-5 items-center justify-center bg-white">
+      <View className="mb-5">
         <MaterialCommunityIcons name="account-lock" size={80} color="#4A90E2" />
       </View>
       
-      <Text style={styles.title}>Sign In Required</Text>
+      <Text className="text-2xl font-bold mb-4 text-gray-800 text-center">
+        Sign In Required
+      </Text>
       
-      <Text style={styles.description}>
+      <Text className="text-base text-center mb-8 text-gray-600 leading-5">
         You need to sign in or create an account to access your profile and 
         borrowing features.
       </Text>
       
-      <View style={styles.buttonContainer}>
+      <View className="w-full mb-5">
         <Button
           mode="contained"
-          style={styles.signInButton}
+          className="mb-4 bg-blue-600 py-1"
           onPress={() => navigateToAuth('Login')}
         >
           Sign In
@@ -52,7 +51,7 @@ const AuthPromptScreen = ({ navigation }) => {
         
         <Button
           mode="outlined"
-          style={styles.registerButton}
+          className="border-blue-600 py-1"
           onPress={() => navigateToAuth('Register')}
         >
           Create Account
@@ -60,83 +59,22 @@ const AuthPromptScreen = ({ navigation }) => {
       </View>
       
       <TouchableOpacity 
-        style={styles.skipButton}
+        className="mt-2.5 p-2.5"
         onPress={() => navigation.navigate('HomeTab')}
       >
-        <Text style={styles.skipText}>
+        <Text className="text-gray-600 text-base">
           Continue Browsing
         </Text>
       </TouchableOpacity>
       
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          As a guest, you can still browse the catalog or borrow books , 
+      <View className="mt-8 p-4 bg-gray-100 rounded-lg w-full">
+        <Text className="text-sm text-gray-600 text-center leading-5">
+          As a guest, you can still browse the catalog or borrow books, 
           but you'll need an account to access personalized features.
         </Text>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  iconContainer: {
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333333',
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
-    color: '#666666',
-    lineHeight: 22,
-  },
-  buttonContainer: {
-    width: '100%',
-    marginBottom: 20,
-  },
-  signInButton: {
-    marginBottom: 15,
-    backgroundColor: '#4A90E2',
-    padding: 5,
-  },
-  registerButton: {
-    borderColor: '#4A90E2',
-    padding: 5,
-  },
-  skipButton: {
-    marginTop: 10,
-    padding: 10,
-  },
-  skipText: {
-    color: '#666666',
-    fontSize: 16,
-  },
-  infoContainer: {
-    marginTop: 30,
-    padding: 15,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    width: '100%',
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#666666',
-    textAlign: 'center',
-    lineHeight: 20,
-  }
-});
 
 export default AuthPromptScreen;

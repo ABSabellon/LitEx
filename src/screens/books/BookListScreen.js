@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   TouchableOpacity,
   RefreshControl,
@@ -60,14 +59,12 @@ const BookListScreen = ({ navigation }) => {
   
   // Filter and sort books based on current criteria
   const filterAndSortBooks = (booksData, query, status, sort) => {
-    // First apply status filter
     let result = [...booksData];
     
     if (status !== 'all') {
       result = result.filter(book => book.status === status);
     }
     
-    // Then apply search query filter
     if (query) {
       const lowercaseQuery = query.toLowerCase();
       result = result.filter(book => 
@@ -77,7 +74,6 @@ const BookListScreen = ({ navigation }) => {
       );
     }
     
-    // Finally apply sorting
     switch (sort) {
       case 'title_asc':
         result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
@@ -179,6 +175,7 @@ const BookListScreen = ({ navigation }) => {
         return '#8E8E93';
     }
   };
+  
   // Render book item
   const renderBookItem = ({ item }) => (
     <BookCard 
@@ -191,22 +188,21 @@ const BookListScreen = ({ navigation }) => {
   );
   
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
+    <View className="flex-1 bg-gray-100">
+      <View className="flex-row items-center px-2.5 mt-2.5 mb-4">
         <Searchbar
           placeholder="Search by title, author, or ISBN"
           onChangeText={onChangeSearch}
           value={searchQuery}
-          style={styles.searchBar}
+          className="flex-1 shadow-sm"
         />
-        
         <Menu
           visible={sortMenuVisible}
           onDismiss={() => setSortMenuVisible(false)}
           anchor={
             <TouchableOpacity
               onPress={() => setSortMenuVisible(true)}
-              style={styles.sortIconButton}
+              className="p-2.5 rounded-full bg-gray-200"
             >
               <MaterialCommunityIcons name="sort" size={24} color="#4A90E2" />
             </TouchableOpacity>
@@ -224,12 +220,12 @@ const BookListScreen = ({ navigation }) => {
         </Menu>
       </View>
       
-      <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersScroll}>
+      <View className="px-2.5 mb-2.5">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 20 }}>
           <Chip
             selected={statusFilter === 'all'}
             onPress={() => onStatusFilterChange('all')}
-            style={styles.filterChip}
+            className="mr-2"
             selectedColor="#4A90E2"
           >
             All
@@ -237,7 +233,7 @@ const BookListScreen = ({ navigation }) => {
           <Chip 
             selected={statusFilter === 'available'} 
             onPress={() => onStatusFilterChange('available')}
-            style={styles.filterChip}
+            className="mr-2"
             selectedColor="#4CD964"
           >
             Available
@@ -245,7 +241,7 @@ const BookListScreen = ({ navigation }) => {
           <Chip 
             selected={statusFilter === 'loaned'} 
             onPress={() => onStatusFilterChange('loaned')}
-            style={styles.filterChip}
+            className="mr-2"
             selectedColor="#FF9500"
           >
             Loaned
@@ -253,7 +249,7 @@ const BookListScreen = ({ navigation }) => {
           <Chip
             selected={statusFilter === 'unavailable'}
             onPress={() => onStatusFilterChange('unavailable')}
-            style={styles.filterChip}
+            className="mr-2"
             selectedColor="#FF3B30"
           >
             Unavailable
@@ -266,20 +262,19 @@ const BookListScreen = ({ navigation }) => {
       ) : (
         <>
           {filteredBooks.length === 0 ? (
-            <View style={styles.emptyContainer}>
+            <View className="flex-1 justify-center items-center px-5">
               <MaterialCommunityIcons name="book-open-variant" size={64} color="#CCCCCC" />
-              <Text style={styles.emptyText}>No books found</Text>
-              <Text style={styles.emptySubtext}>
+              <Text className="text-lg font-bold text-gray-800 mt-2.5">No books found</Text>
+              <Text className="text-sm text-gray-400 mt-1 text-center">
                 {searchQuery || statusFilter !== 'all' 
                   ? 'Try changing your search or filters'
                   : 'Add your first book to get started'}
               </Text>
-              
               {!searchQuery && statusFilter === 'all' && (
                 <Button 
                   mode="contained"
                   onPress={() => navigation.navigate('AddBook')}
-                  style={styles.addButton}
+                  className="mt-5 bg-blue-600"
                 >
                   Add Book
                 </Button>
@@ -290,7 +285,7 @@ const BookListScreen = ({ navigation }) => {
               data={filteredBooks}
               renderItem={renderBookItem}
               keyExtractor={item => item.id}
-              contentContainerStyle={styles.listContent}
+              contentContainerStyle={{ padding: 10, paddingBottom: 80 }}
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -304,7 +299,7 @@ const BookListScreen = ({ navigation }) => {
       )}
       
       {/* <FAB
-        style={styles.fab}
+        className="absolute bottom-4 right-4 bg-blue-600"
         icon="plus"
         onPress={() => navigation.navigate('AddBook')}
         color="#FFFFFF"
@@ -312,99 +307,5 @@ const BookListScreen = ({ navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  authorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  authorItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorBy: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  authorLink: {
-    fontSize: 14,
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
-  },
-  authorText: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    marginTop: 10,
-    marginBottom: 15,
-  },
-  searchBar: {
-    flex: 1,
-    elevation: 2,
-  },
-  sortIconButton: {
-    padding: 10,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-  },
-  filtersContainer: {
-    paddingHorizontal: 10,
-    marginBottom: 10,
-  },
-  filtersScroll: {
-    paddingRight: 20,
-  },
-  filterChip: {
-    marginRight: 8,
-  },
-  sortButton: {
-    marginLeft: 8,
-    borderColor: '#4A90E2',
-  },
-  // Removed redundant loading styles
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginTop: 10,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#999999',
-    marginTop: 5,
-    textAlign: 'center',
-  },
-  addButton: {
-    marginTop: 20,
-    backgroundColor: '#4A90E2',
-  },
-  listContent: {
-    padding: 10,
-    paddingBottom: 80, // Add padding to bottom to avoid FAB overlap
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#4A90E2',
-  },
-});
 
 export default BookListScreen;

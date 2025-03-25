@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   TouchableOpacity,
   RefreshControl,
@@ -31,30 +30,21 @@ const MyBooksScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all', 'active', 'returned', 'overdue'
-  
-  // State for guest mode
+  const [filter, setFilter] = useState('all');
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [guestEmail, setGuestEmail] = useState('');
-  
   const { currentUser } = useAuth();
 
-  // Check if route params contain guest info
   useEffect(() => {
     if (route?.params?.guestEmail && route?.params?.guestVerified) {
       setIsGuestMode(true);
       setGuestEmail(route.params.guestEmail);
     }
   }, [route?.params]);
-  
-  // Load loaned books
+
   const loadBooks = async () => {
-    // Clear any previous data
     setMyBooks([]);
-    
-    // Determine which email to use
     const emailToUse = isGuestMode ? guestEmail : (currentUser?.email || null);
-    
     if (!emailToUse) {
       setLoading(false);
       setRefreshing(false);
@@ -63,19 +53,13 @@ const MyBooksScreen = ({ navigation, route }) => {
     
     try {
       setLoading(true);
-      
-      // Get all borrows for the user or guest
       const borrows = await getLoanedBooksByEmail(emailToUse);
-      
-      // For each borrow, fetch the book details
       const booksWithBorrowDetails = await Promise.all(
         borrows.map(async (borrow) => {
           const book = await getBookById(borrow.book_id);
           if (book) {
-            // Calculate if overdue
             const due_date = borrow.due_date.toDate();
             const isOverdue = borrow.status === 'active' && due_date < new Date();
-            
             return {
               ...book,
               borrow_id: borrow.id,
@@ -90,12 +74,8 @@ const MyBooksScreen = ({ navigation, route }) => {
         })
       );
       
-      // Remove any null values
       const validBooks = booksWithBorrowDetails.filter(book => book !== null);
-      
-      // Sort by borrow date (newest first)
       validBooks.sort((a, b) => b.borrow_date - a.borrow_date);
-      
       setMyBooks(validBooks);
     } catch (error) {
       console.error('Error loading loaned books:', error);
@@ -105,63 +85,46 @@ const MyBooksScreen = ({ navigation, route }) => {
       setRefreshing(false);
     }
   };
-  
-  // Exit guest mode
+
   const exitGuestMode = () => {
     setIsGuestMode(false);
     setGuestEmail('');
     navigation.navigate('GuestVerification');
   };
-  
-  // Initial load
+
   useEffect(() => {
     loadBooks();
   }, [currentUser, isGuestMode, guestEmail]);
-  
-  // Handle refresh
+
   const onRefresh = () => {
     setRefreshing(true);
     loadBooks();
   };
-  
-  // Apply filter
+
   const getFilteredBooks = () => {
-    if (filter === 'all') {
-      return myBooks;
-    } else if (filter === 'active') {
-      return myBooks.filter(book => book.status === 'active' && !book.isOverdue);
-    } else if (filter === 'returned') {
-      return myBooks.filter(book => book.status === 'returned');
-    } else if (filter === 'overdue') {
-      return myBooks.filter(book => book.isOverdue);
-    }
+    if (filter === 'all') return myBooks;
+    if (filter === 'active') return myBooks.filter(book => book.status === 'active' && !book.isOverdue);
+    if (filter === 'returned') return myBooks.filter(book => book.status === 'returned');
+    if (filter === 'overdue') return myBooks.filter(book => book.isOverdue);
     return myBooks;
   };
-  
-  // Format date for display
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-    return date.toLocaleDateString();
-  };
-  
-  // Calculate days left
+
+  const formatDate = (date) => !date ? 'N/A' : date.toLocaleDateString();
+
   const getDaysLeft = (due_date) => {
     if (!due_date) return 0;
-    
     const today = new Date();
     const diffTime = due_date - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
-  
-  // Handle book return
+
   const handleReturnBook = (book) => {
     Alert.alert(
       'Return Book',
       `Are you sure you want to return "${book.title}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
+        {
           text: 'Return',
           onPress: async () => {
             try {
@@ -179,61 +142,51 @@ const MyBooksScreen = ({ navigation, route }) => {
       ]
     );
   };
-  
-  // Render book item
+
   const renderBookItem = ({ item }) => {
-    // Calculate days left or overdue
     const daysLeft = getDaysLeft(item.due_date);
-    
     return (
       <Card 
-        style={styles.bookCard}
+        className="mb-2.5 shadow-sm rounded-lg"
         onPress={() => navigation.navigate('MyBookDetails', { book_id: item.id })}
       >
-        <Card.Content style={styles.bookCardContent}>
-          <View style={styles.bookInfo}>
-            <Title style={styles.bookTitle}>{item.title}</Title>
-            <Paragraph style={styles.bookAuthor}>by {item.author}</Paragraph>
-            
-            <View style={styles.datesContainer}>
-              <View style={styles.dateRow}>
-                <Text style={styles.dateLabel}>Loaned:</Text>
-                <Text style={styles.dateValue}>{formatDate(item.borrow_date)}</Text>
+        <Card.Content className="flex-row">
+          <View className="flex-1 mr-2.5">
+            <Title className="text-base leading-5">{item.title}</Title>
+            <Paragraph className="text-sm text-gray-600">by {item.author}</Paragraph>
+            <View className="mt-2.5">
+              <View className="flex-row mb-1">
+                <Text className="w-20 text-sm text-gray-600">Loaned:</Text>
+                <Text className="text-sm text-gray-800 font-medium">{formatDate(item.borrow_date)}</Text>
               </View>
-              
-              <View style={styles.dateRow}>
-                <Text style={styles.dateLabel}>Due:</Text>
-                <Text style={[
-                  styles.dateValue,
-                  item.isOverdue && styles.overdueDateValue
-                ]}>
+              <View className="flex-row mb-1">
+                <Text className="w-20 text-sm text-gray-600">Due:</Text>
+                <Text className={`text-sm font-medium ${item.isOverdue ? 'text-red-500' : 'text-gray-800'}`}>
                   {formatDate(item.due_date)}
                 </Text>
               </View>
-              
               {item.return_date && (
-                <View style={styles.dateRow}>
-                  <Text style={styles.dateLabel}>Returned:</Text>
-                  <Text style={styles.dateValue}>{formatDate(item.return_date)}</Text>
+                <View className="flex-row mb-1">
+                  <Text className="w-20 text-sm text-gray-600">Returned:</Text>
+                  <Text className="text-sm text-gray-800 font-medium">{formatDate(item.return_date)}</Text>
                 </View>
               )}
             </View>
-            
-            <View style={styles.statusContainer}>
+            <View className="flex-row items-center mt-2.5 flex-wrap">
               {item.status === 'active' ? (
                 item.isOverdue ? (
                   <Chip 
                     mode="outlined" 
-                    style={styles.overdueChip}
-                    textStyle={styles.overdueChipText}
+                    className="border-red-500 bg-red-50"
+                    textStyle={{ color: '#FF3B30' }}
                   >
                     {Math.abs(daysLeft)} days overdue
                   </Chip>
                 ) : (
                   <Chip 
                     mode="outlined" 
-                    style={styles.dueChip}
-                    textStyle={styles.dueChipText}
+                    className="border-green-500 bg-green-50"
+                    textStyle={{ color: '#4CD964' }}
                   >
                     {daysLeft} days left
                   </Chip>
@@ -241,34 +194,32 @@ const MyBooksScreen = ({ navigation, route }) => {
               ) : (
                 <Chip 
                   mode="outlined" 
-                  style={styles.returnedChip}
-                  textStyle={styles.returnedChipText}
+                  className="border-gray-500 bg-gray-50"
+                  textStyle={{ color: '#8E8E93' }}
                 >
                   Returned
                 </Chip>
               )}
-              
               {item.status === 'active' && (
                 <Button 
                   mode="text" 
                   compact
                   onPress={() => handleReturnBook(item)}
-                  style={styles.returnButton}
+                  className="ml-2.5"
                 >
                   Return
                 </Button>
               )}
             </View>
           </View>
-          
           {item.imageUrl ? (
             <Image
               source={{ uri: item.imageUrl }}
-              style={styles.bookCover}
+              className="w-20 h-30 rounded"
               resizeMode="cover"
             />
           ) : (
-            <View style={styles.bookCoverPlaceholder}>
+            <View className="w-20 h-30 rounded bg-gray-200 justify-center items-center">
               <MaterialCommunityIcons name="book-open-page-variant" size={40} color="#CCCCCC" />
             </View>
           )}
@@ -276,56 +227,48 @@ const MyBooksScreen = ({ navigation, route }) => {
       </Card>
     );
   };
-  
+
   const filteredBooks = getFilteredBooks();
-  
-  // If not in guest mode and user is not logged in, show auth prompt or guest access option
+
   if (!isGuestMode && !currentUser) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Books</Text>
+      <View className="flex-1 bg-gray-100">
+        <View className="p-5 flex-row justify-between items-center">
+          <Text className="text-2xl font-bold text-gray-800">My Books</Text>
         </View>
-        
-        <View style={styles.authPromptContainer}>
+        <View className="flex-1 p-5 items-center justify-center">
           <MaterialCommunityIcons name="account-lock" size={80} color="#4A90E2" />
-          
-          <Text style={styles.authPromptTitle}>Access Your Books</Text>
-          
-          <Text style={styles.authPromptText}>
+          <Text className="text-xl font-bold text-gray-800 mt-5 mb-2.5">Access Your Books</Text>
+          <Text className="text-base text-gray-600 text-center mb-8 leading-5">
             Sign in to view your books or enter your guest details to check books you've loaned as a guest.
           </Text>
-          
           <Button
             mode="contained"
             onPress={() => navigation.navigate('GuestVerification')}
-            style={[styles.signInButton, { backgroundColor: '#5DA271' }]}
+            className="mb-4 bg-green-600 w-[80%]"
             icon="email-check"
           >
             Check Guest Books
           </Button>
-          
           <Button
             mode="contained"
             onPress={() => navigation.navigate('Auth', { screen: 'Login' })}
-            style={styles.signInButton}
+            className="mb-4 bg-blue-600 w-[80%]"
             icon="login"
           >
             Sign In
           </Button>
-          
           <Button
             mode="outlined"
             onPress={() => navigation.navigate('Auth', { screen: 'Register' })}
-            style={styles.registerButton}
+            className="mb-4 border-blue-600 w-[80%]"
           >
             Create Account
           </Button>
-          
           <Button
             mode="text"
             onPress={() => navigation.navigate('CatalogTab')}
-            style={styles.browseAsGuestButton}
+            className="mt-2.5"
           >
             Continue Browsing
           </Button>
@@ -335,21 +278,19 @@ const MyBooksScreen = ({ navigation, route }) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View className="flex-1 bg-gray-100">
+      <View className="p-5 flex-row justify-between items-center">
         {isGuestMode && (
           <IconButton
             icon="arrow-left"
             size={24}
             onPress={exitGuestMode}
-            style={styles.backButton}
+            className="ml-[-10px]"
           />
         )}
-        
-        <Text style={[styles.headerTitle, isGuestMode && styles.headerTitleWithBack]}>
+        <Text className={`text-2xl font-bold text-gray-800 ${isGuestMode ? 'flex-1 ml-2' : ''}`}>
           {isGuestMode ? 'Guest Books' : 'My Books'}
         </Text>
-        
         <Menu
           visible={filterMenuVisible}
           onDismiss={() => setFilterMenuVisible(false)}
@@ -357,7 +298,7 @@ const MyBooksScreen = ({ navigation, route }) => {
             <Button
               mode="outlined"
               onPress={() => setFilterMenuVisible(true)}
-              style={styles.filterButton}
+              className="border-blue-600"
               icon="filter-variant"
             >
               {filter === 'all' ? 'All Books' :
@@ -366,72 +307,39 @@ const MyBooksScreen = ({ navigation, route }) => {
             </Button>
           }
         >
-          <Menu.Item
-            onPress={() => {
-              setFilter('all');
-              setFilterMenuVisible(false);
-            }}
-            title="All Books"
-            leadingIcon="book-multiple"
-          />
-          <Menu.Item
-            onPress={() => {
-              setFilter('active');
-              setFilterMenuVisible(false);
-            }}
-            title="Active"
-            leadingIcon="book-open-variant"
-          />
-          <Menu.Item
-            onPress={() => {
-              setFilter('returned');
-              setFilterMenuVisible(false);
-            }}
-            title="Returned"
-            leadingIcon="book-check"
-          />
+          <Menu.Item onPress={() => { setFilter('all'); setFilterMenuVisible(false); }} title="All Books" leadingIcon="book-multiple" />
+          <Menu.Item onPress={() => { setFilter('active'); setFilterMenuVisible(false); }} title="Active" leadingIcon="book-open-variant" />
+          <Menu.Item onPress={() => { setFilter('returned'); setFilterMenuVisible(false); }} title="Returned" leadingIcon="book-check" />
           <Divider />
-          <Menu.Item
-            onPress={() => {
-              setFilter('overdue');
-              setFilterMenuVisible(false);
-            }}
-            title="Overdue"
-            leadingIcon="book-alert"
-          />
+          <Menu.Item onPress={() => { setFilter('overdue'); setFilterMenuVisible(false); }} title="Overdue" leadingIcon="book-alert" />
         </Menu>
       </View>
-      
       {isGuestMode && (
-        <View style={styles.guestBanner}>
+        <View className="bg-green-600 py-2.5 px-5 flex-row items-center justify-center">
           <MaterialCommunityIcons name="account-box" size={20} color="#FFF" />
-          <Text style={styles.guestBannerText}>
+          <Text className="text-white text-sm font-medium ml-2">
             Viewing books for guest: {guestEmail}
           </Text>
         </View>
       )}
-      
       {loading && !refreshing ? (
-        <View style={styles.loadingContainer}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#4A90E2" />
-          <Text style={styles.loadingText}>Loading your books...</Text>
+          <Text className="mt-2.5 text-gray-600">Loading your books...</Text>
         </View>
       ) : (
         <>
           {filteredBooks.length === 0 ? (
-            <View style={styles.emptyContainer}>
+            <View className="flex-1 justify-center items-center p-5">
               <MaterialCommunityIcons name="bookshelf" size={64} color="#CCCCCC" />
-              <Text style={styles.emptyText}>
-                {filter !== 'all'
-                  ? `No ${filter} books found`
-                  : "You haven't loaned any books yet"}
+              <Text className="text-base text-gray-400 mt-2.5 mb-5 text-center">
+                {filter !== 'all' ? `No ${filter} books found` : "You haven't loaned any books yet"}
               </Text>
-              
               {filter === 'all' && (
                 <Button
                   mode="contained"
                   onPress={() => navigation.navigate('CatalogTab')}
-                  style={styles.browseButton}
+                  className="bg-blue-600"
                 >
                   Browse Library
                 </Button>
@@ -442,7 +350,7 @@ const MyBooksScreen = ({ navigation, route }) => {
               data={filteredBooks}
               renderItem={renderBookItem}
               keyExtractor={item => item.borrow_id}
-              contentContainerStyle={styles.listContent}
+              contentContainerStyle={{ padding: 10, paddingBottom: 80 }}
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
@@ -454,10 +362,9 @@ const MyBooksScreen = ({ navigation, route }) => {
           )}
         </>
       )}
-      
       {!isGuestMode && (
         <FAB
-          style={styles.scanFab}
+          className="absolute bottom-4 right-4 bg-blue-600"
           icon="qrcode-scan"
           onPress={() => navigation.navigate('ScanTab')}
           color="#FFFFFF"
@@ -466,199 +373,5 @@ const MyBooksScreen = ({ navigation, route }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  headerTitleWithBack: {
-    flex: 1,
-    marginLeft: 8,
-  },
-  backButton: {
-    marginLeft: -10,
-  },
-  filterButton: {
-    borderColor: '#4A90E2',
-  },
-  guestBanner: {
-    backgroundColor: '#5DA271',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  guestBannerText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginLeft: 8,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#666666',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#999999',
-    textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  browseButton: {
-    backgroundColor: '#4A90E2',
-  },
-  authPromptContainer: {
-    flex: 1,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  authPromptTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  authPromptText: {
-    fontSize: 16,
-    color: '#666666',
-    textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 22,
-  },
-  signInButton: {
-    marginBottom: 15,
-    backgroundColor: '#4A90E2',
-    width: '80%',
-  },
-  registerButton: {
-    marginBottom: 15,
-    borderColor: '#4A90E2',
-    width: '80%',
-  },
-  browseAsGuestButton: {
-    marginTop: 10,
-  },
-  listContent: {
-    padding: 10,
-    paddingBottom: 80, // Add padding to bottom to avoid FAB overlap
-  },
-  bookCard: {
-    marginBottom: 10,
-    elevation: 2,
-    borderRadius: 8,
-  },
-  bookCardContent: {
-    flexDirection: 'row',
-  },
-  bookInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  bookTitle: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  bookAuthor: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  datesContainer: {
-    marginTop: 10,
-  },
-  dateRow: {
-    flexDirection: 'row',
-    marginBottom: 4,
-  },
-  dateLabel: {
-    width: 75,
-    fontSize: 14,
-    color: '#666666',
-  },
-  dateValue: {
-    fontSize: 14,
-    color: '#333333',
-    fontWeight: '500',
-  },
-  overdueDateValue: {
-    color: '#FF3B30',
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    flexWrap: 'wrap',
-  },
-  overdueChip: {
-    borderColor: '#FF3B30',
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
-  },
-  overdueChipText: {
-    color: '#FF3B30',
-  },
-  dueChip: {
-    borderColor: '#4CD964',
-    backgroundColor: 'rgba(76, 217, 100, 0.1)',
-  },
-  dueChipText: {
-    color: '#4CD964',
-  },
-  returnedChip: {
-    borderColor: '#8E8E93',
-    backgroundColor: 'rgba(142, 142, 147, 0.1)',
-  },
-  returnedChipText: {
-    color: '#8E8E93',
-  },
-  returnButton: {
-    marginLeft: 10,
-  },
-  bookCover: {
-    width: 80,
-    height: 120,
-    borderRadius: 4,
-  },
-  bookCoverPlaceholder: {
-    width: 80,
-    height: 120,
-    borderRadius: 4,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanFab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#4A90E2',
-  },
-});
 
 export default MyBooksScreen;

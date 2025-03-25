@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   TouchableOpacity,
 } from 'react-native';
@@ -13,11 +12,10 @@ import {
   Chip,
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import StarRating from '../StarRating'; // Adjust the path as needed
-import { getBookCoverUrl } from '../../services/bookService'; // Adjust the path as needed
+import StarRating from '../StarRating';
+import { getBookCoverUrl } from '../../services/bookService';
 
 const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = false }) => {
-  // Normalize categories to always be an array
   const categories = Array.isArray(book.categories)
     ? book.categories
     : typeof book.categories === 'string'
@@ -54,64 +52,64 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
 
   return (
     <Card 
-      style={styles.bookCard}
+      className="mb-2.5 rounded-lg shadow"
       onPress={handleCardPress}
     >
-      <Card.Content style={styles.bookCardContent}>
-        <View style={styles.bookInfo}>
-          <Title style={styles.bookTitle}>{book.title}</Title>
-          <View style={styles.authorContainer}>
+      <Card.Content className="flex-row h-[150px]">
+        <View className="flex-1 mr-2.5">
+          <Title className="text-base leading-[22px]">{book.title}</Title>
+          <View className="flex-row flex-wrap items-center">
             {book.authorsData && Array.isArray(book.authorsData) && book.authorsData.length > 0 ? (
-              <Text style={styles.authorByText}>by </Text>
+              <Text className="text-sm text-gray-600">by </Text>
             ) : (
-              <Text style={styles.authorByText}>by </Text>
+              <Text className="text-sm text-gray-600">by </Text>
             )}
             
             {book.authorsData && Array.isArray(book.authorsData) && book.authorsData.length > 0 ? (
               book.authorsData.map((author, index) => (
-                <View key={index} style={styles.authorItemContainer}>
+                <View key={index} className="flex-row items-center">
                   <TouchableOpacity
                     onPress={() => handleAuthorPress(author)}
                   >
-                    <Text style={styles.authorLink}>
+                    <Text className="text-sm text-primary underline">
                       {index === 0 ? '' : ', '}{author.name}
                     </Text>
                   </TouchableOpacity>
                 </View>
               ))
             ) : (
-              <Text style={styles.bookAuthor}>{book.author}</Text>
+              <Text className="text-sm text-gray-600">{book.author}</Text>
             )}
           </View>
           
           {!admin && (
             <View>
               {categories.length > 0 && (
-                <View style={styles.categoriesContainer}>
+                <View className="flex-row flex-wrap items-center">
                   {categories.slice(0, 2).map((category, index) => (
                     <Chip 
                       key={index} 
-                      style={styles.categoryChip}
-                      textStyle={styles.categoryChipText}
+                      className="mr-1.5 mb-1.5 h-[30px] bg-gray-100"
+                      textStyle="text-xs m-0"
                     >
                       {category}
                     </Chip>
                   ))}
                   {categories.length > 2 && (
-                    <Text style={styles.moreCategoriesText}>+{categories.length - 2} more</Text>
+                    <Text className="text-xs text-gray-500 ml-1.5">+{categories.length - 2} more</Text>
                   )}
                 </View>
               )}
               
-              <View style={styles.statusContainer}>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(book.status) }]}>
-                  <Text style={styles.statusText}>
+              <View className="flex-row items-center mt-2">
+                <View style={{ backgroundColor: getStatusColor(book.status) }} className="px-2 py-0.5 rounded-xl">
+                  <Text className="text-white text-xs font-bold">
                     {book.status ? book.status.charAt(0).toUpperCase() + book.status.slice(1) : 'Unknown'}
                   </Text>
                 </View>
                 
                 {book.average_rating > 0 && (
-                  <View style={styles.ratingContainer}>
+                  <View className="flex-row items-center ml-2.5">
                     <StarRating
                       rating={book.average_rating}
                       count={null}
@@ -124,36 +122,36 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
           )}
           
           {admin && (
-            <View style={styles.bookDetails}>
-              <View style={styles.bookDetailRow}>
-                <Text style={styles.detailLabel}>ISBN:</Text>
-                <Text style={styles.detailValue}>
+            <View className="mt-2.5">
+              <View className="flex-row items-center mb-1.5">
+                <Text className="text-sm text-gray-600 mr-1.5 w-[50px]">ISBN:</Text>
+                <Text className="text-sm text-gray-800">
                   {book.identifiers?.isbn_13 || book.identifiers?.isbn_10 || book.isbn || 'N/A'}
                 </Text>
               </View>
               
-              <View style={styles.bookDetailRow}>
-                <Text style={styles.detailLabel}>Status:</Text>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(book.status) }]}>
-                  <Text style={styles.statusText}>
+              <View className="flex-row items-center mb-1.5">
+                <Text className="text-sm text-gray-600 mr-1.5 w-[50px]">Status:</Text>
+                <View style={{ backgroundColor: getStatusColor(book.status) }} className="px-2 py-0.5 rounded-xl">
+                  <Text className="text-white text-xs font-bold">
                     {book.status ? book.status.charAt(0).toUpperCase() + book.status.slice(1) : 'Unknown'}
                   </Text>
                 </View>
               </View>
 
               {categories.length > 0 && (
-                <View style={styles.categoriesContainer}>
+                <View className="flex-row flex-wrap items-center">
                   {categories.slice(0, 2).map((category, index) => (
                     <Chip 
                       key={index} 
-                      style={styles.categoryChip}
-                      textStyle={styles.categoryChipText}
+                      className="mr-1.5 mb-1.5 h-[30px] bg-gray-100"
+                      textStyle="text-xs m-0"
                     >
                       {category}
                     </Chip>
                   ))}
                   {categories.length > 2 && (
-                    <Text style={styles.moreCategoriesText}>+{categories.length - 2} more</Text>
+                    <Text className="text-xs text-gray-500 ml-1.5">+{categories.length - 2} more</Text>
                   )}
                 </View>
               )}
@@ -164,18 +162,18 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
         {getBookCoverUrl(book) ? (
           <Image
             source={{ uri: getBookCoverUrl(book) }}
-            style={styles.bookCover}
+            className="w-[80px] h-[120px] rounded"
             resizeMode="cover"
           />
         ) : (
-          <View style={styles.bookCoverPlaceholder}>
+          <View className="w-[80px] h-[120px] rounded bg-gray-100 justify-center items-center">
             <MaterialCommunityIcons name="book-open-page-variant" size={40} color="#CCCCCC" />
           </View>
         )}
       </Card.Content>
-      {/* Bottom container with QR and trash */}
+      
       {admin && (
-        <Card.Content style={styles.cardFooter}>
+        <Card.Content className="flex-row justify-between items-center border-t border-gray-100">
           <Button
             icon="qrcode"
             mode="text"
@@ -185,7 +183,7 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
           </Button>
           
           <TouchableOpacity
-            style={styles.trashButton}
+            className="p-2 bg-gray-50 rounded-full"
             onPress={() => handleDeleteBook(book.id)}
           >
             <MaterialCommunityIcons name="delete" size={20} color="#FF3B30" />
@@ -195,146 +193,5 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
     </Card>
   );
 };
-
-// Styles remain unchanged
-const styles = StyleSheet.create({
-  bookCard: {
-    marginBottom: 10,
-    elevation: 2,
-    borderRadius: 8,
-  },
-  bookCardContent: {
-    flexDirection: 'row',
-    height: 150
-  },
-  bookInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  bookTitle: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  bookDetails: {
-    marginTop: 10,
-  },
-  bookDetailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  bookAuthor: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  authorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  authorItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorByText: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  authorLink: {
-    fontSize: 14,
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
-  },
-  categoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-  },
-  categoryChip: {
-    marginRight: 5,
-    marginBottom: 5,
-    height: 30,
-    backgroundColor: '#F0F0F0',
-  },
-  categoryChipText: {
-    fontSize: 10,
-    margin: 0,
-  },
-  moreCategoriesText: {
-    fontSize: 10,
-    color: '#999999',
-    marginLeft: 5,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  ratingText: {
-    marginLeft: 3,
-    fontSize: 12,
-    color: '#666666',
-  },
-  bookCover: {
-    width: 80,
-    height: 120,
-    borderRadius: 4,
-  },
-  bookCoverPlaceholder: {
-    width: 80,
-    height: 120,
-    borderRadius: 4,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  trashButton: {
-    padding: 8,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 20,
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: '#666666',
-    marginRight: 5,
-    width: 50,
-  },
-  detailValue: {
-    fontSize: 14,
-    color: '#333333',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-});
 
 export default BookCard;

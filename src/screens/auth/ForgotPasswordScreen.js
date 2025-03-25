@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   View, 
   Text, 
-  StyleSheet, 
   TouchableOpacity, 
   KeyboardAvoidingView, 
   Platform,
@@ -43,21 +42,21 @@ const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      className="flex-1 bg-white"
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.headerContainer}>
+      <ScrollView className="flex-1 px-5" contentContainerStyle={{ flexGrow: 1 }}>
+        <View className={`flex-row items-center mb-7 ${Platform.OS === 'ios' ? 'mt-10' : 'mt-5'}`}>
           <TouchableOpacity
-            style={styles.backButton}
+            className="mr-2.5"
             onPress={() => navigation.goBack()}
           >
             <MaterialCommunityIcons name="arrow-left" size={24} color="#333333" />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Reset Password</Text>
+          <Text className="text-2xl font-bold text-gray-800">Reset Password</Text>
         </View>
         
-        <View style={styles.formContainer}>
-          <Text style={styles.instructionText}>
+        <View className="w-full">
+          <Text className="text-base text-gray-600 mb-5 leading-[22px]">
             Enter your email address below. We'll send you an email with instructions to reset your password.
           </Text>
           
@@ -66,7 +65,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             value={email}
             onChangeText={setEmail}
             mode="outlined"
-            style={styles.input}
+            className="mb-6"
             keyboardType="email-address"
             autoCapitalize="none"
             left={<TextInput.Icon icon="email" />}
@@ -75,17 +74,17 @@ const ForgotPasswordScreen = ({ navigation }) => {
           <Button 
             mode="contained" 
             onPress={handleResetPassword}
-            style={styles.button}
+            className="py-1.5 bg-primary"
             loading={loading}
             disabled={loading}
           >
             Send Reset Email
           </Button>
           
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Remember your password? </Text>
+          <View className="flex-row justify-center mt-5">
+            <Text className="text-gray-800">Remember your password? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Log In</Text>
+              <Text className="text-primary font-bold">Log In</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -93,58 +92,5 @@ const ForgotPasswordScreen = ({ navigation }) => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 30,
-    marginTop: Platform.OS === 'ios' ? 40 : 20,
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  formContainer: {
-    width: '100%',
-  },
-  instructionText: {
-    fontSize: 16,
-    color: '#555555',
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  input: {
-    marginBottom: 25,
-  },
-  button: {
-    padding: 5,
-    backgroundColor: '#4A90E2',
-  },
-  loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  loginText: {
-    color: '#333333',
-  },
-  loginLink: {
-    color: '#4A90E2',
-    fontWeight: 'bold',
-  },
-});
 
 export default ForgotPasswordScreen;

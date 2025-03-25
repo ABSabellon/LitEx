@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -186,8 +185,7 @@ const AddBookForm = ({
   };
 
   return (
- 
-    <View  contentContainerStyle={styles.scrollContainer}>
+    <View className="mt-5 flex-1 bg-white">
       <Formik
         initialValues={{
           title: '',
@@ -217,14 +215,14 @@ const AddBookForm = ({
         innerRef={formikRef}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-          <View style={styles.formContainer}>
+          <View className="w-full">
             <TextInput
               label="ISBN"
               value={values.isbn}
               onChangeText={handleChange('isbn')}
               onBlur={handleBlur('isbn')}
               mode="outlined"
-              style={styles.input}
+              className="mb-4"
               keyboardType="numeric"
               left={<TextInput.Icon icon="barcode" />}
             />
@@ -235,64 +233,64 @@ const AddBookForm = ({
               onChangeText={handleChange('title')}
               onBlur={handleBlur('title')}
               mode="outlined"
-              style={styles.input}
+              className="mb-4"
               error={touched.title && errors.title}
             />
             {touched.title && errors.title && (
-              <Text style={styles.errorText}>{errors.title}</Text>
+              <Text className="text-xs text-red-500 -mt-2.5 mb-2.5 ml-1.5">{errors.title}</Text>
             )}
             
-            <Divider style={styles.divider} />
+            <Divider className="my-4" />
             
             {values.image_url ? (
-              <View style={styles.coverPreviewContainer}>
+              <View className="items-center mb-5">
                 <Image
                   source={{ uri: values.image_url }}
-                  style={styles.coverImage}
+                  className="w-[120px] h-[180px] mb-2.5 rounded bg-gray-100"
                   resizeMode="contain"
                 />
                 <Button
                   icon="close"
                   mode="text"
                   onPress={() => setFieldValue('image_url', null)}
-                  style={styles.removeCoverButton}
+                  className="my-1.5"
                 >
                   Remove
                 </Button>
               </View>
             ) : (
-              <View style={styles.noCoverContainer}>
+              <View className="items-center justify-center h-[180px] bg-gray-100 rounded mb-5">
                 <MaterialCommunityIcons name="book-open-page-variant" size={64} color="#DDDDDD" />
-                <Text style={styles.noCoverText}>No cover image</Text>
+                <Text className="mt-2.5 text-gray-400 text-sm">No cover image</Text>
               </View>
             )}
             
-            <View style={styles.chipSection}>
-              <Text style={styles.chipSectionTitle}>Authors *</Text>
-              <ScrollView horizontal style={styles.chipScrollView}>
+            <View className="mb-4">
+              <Text className="text-base font-bold text-gray-800 mb-2">Authors *</Text>
+              <ScrollView horizontal className="flex-row mb-2.5 max-h-[45px]">
                 {authorChips.map((author, index) => (
                   <Chip
                     key={`author-${index}`}
                     onClose={() => removeAuthorChip(index, setFieldValue)}
-                    style={styles.chip}
+                    className="mr-2 mb-2 bg-gray-100"
                     mode="outlined"
                   >
                     {author}
                   </Chip>
                 ))}
               </ScrollView>
-              <View style={styles.chipInputRow}>
+              <View className="flex-row items-center">
                 <TextInput
                   placeholder="Add author (press Enter to add)"
                   value={newAuthor}
                   onChangeText={setNewAuthor}
                   onSubmitEditing={() => addAuthorChip(newAuthor, setFieldValue)}
-                  style={styles.chipInput}
+                  className="flex-1 mb-2.5"
                   mode="outlined"
                 />
               </View>
               {touched.author && errors.author && (
-                <Text style={styles.errorText}>{errors.author}</Text>
+                <Text className="text-xs text-red-500 -mt-2.5 mb-2.5 ml-1.5">{errors.author}</Text>
               )}
             </View>
             
@@ -302,7 +300,7 @@ const AddBookForm = ({
               onChangeText={handleChange('publisher')}
               onBlur={handleBlur('publisher')}
               mode="outlined"
-              style={styles.input}
+              className="mb-4"
             />
             
             <TextInput
@@ -311,53 +309,53 @@ const AddBookForm = ({
               onChangeText={handleChange('published_date')}
               onBlur={handleBlur('published_date')}
               mode="outlined"
-              style={styles.input}
+              className="mb-4"
             />
             
-            <View style={styles.chipSection}>
-              <Text style={styles.chipSectionTitle}>Categories</Text>
-              <ScrollView horizontal style={styles.chipScrollView}>
+            <View className="mb-4">
+              <Text className="text-base font-bold text-gray-800 mb-2">Categories</Text>
+              <ScrollView horizontal className="flex-row mb-2.5 max-h-[45px]">
                 {categoryChips.map((category, index) => (
                   <Chip
                     key={`category-${index}`}
                     onClose={() => removeCategoryChip(index, setFieldValue)}
-                    style={styles.chip}
+                    className="mr-2 mb-2 bg-gray-100"
                     mode="outlined"
                   >
                     {category}
                   </Chip>
                 ))}
               </ScrollView>
-              <View style={styles.chipInputRow}>
+              <View className="flex-row items-center">
                 <TextInput
                   placeholder="Add category (press Enter to add)"
                   value={newCategory}
                   onChangeText={setNewCategory}
                   onSubmitEditing={() => addCategoryChip(newCategory, setFieldValue)}
-                  style={styles.chipInput}
+                  className="flex-1 mb-2.5"
                   mode="outlined"
                 />
               </View>
             </View>
             
-            <View style={styles.libraryCodeContainer}>
-              <Text style={styles.chipSectionTitle}>Library Code</Text>
+            <View className="mb-4">
+              <Text className="text-base font-bold text-gray-800 mb-2">Library Code</Text>
               <TextInput
                 label="Location Code"
                 value={values.location}
                 onChangeText={handleChange('location')}
                 onBlur={handleBlur('location')}
                 mode="outlined"
-                style={styles.input}
+                className="mb-4"
                 placeholder="THEME-AUT-1234-001"
                 right={<TextInput.Icon icon="bookshelf" />}
               />
               {values.location ? (
-                <HelperText type="info" style={styles.libraryCodeHelperText}>
+                <HelperText type="info" className="mt-1.5 text-xs">
                   {libraryCodeExplanation.replace('Author code', `Author (${values.author})`)}
                 </HelperText>
               ) : (
-                <HelperText type="info" style={styles.libraryCodeHelperText}>
+                <HelperText type="info" className="mt-1.5 text-xs">
                   Location code is automatically generated based on genre, author, ISBN, and copy number
                 </HelperText>
               )}
@@ -369,7 +367,7 @@ const AddBookForm = ({
               onChangeText={handleChange('description')}
               onBlur={handleBlur('description')}
               mode="outlined"
-              style={styles.textArea}
+              className="mb-4 h-[100px]"
               multiline
               numberOfLines={4}
             />
@@ -380,7 +378,7 @@ const AddBookForm = ({
               onChangeText={handleChange('notes')}
               onBlur={handleBlur('notes')}
               mode="outlined"
-              style={styles.textArea}
+              className="mb-4 h-[100px]"
               multiline
               numberOfLines={3}
             />
@@ -388,7 +386,7 @@ const AddBookForm = ({
             <Button
               mode="contained"
               onPress={handleSubmit}
-              style={styles.submitButton}
+              className="mt-2.5 mb-7.5 py-1.5 bg-primary"
               loading={loading}
               disabled={loading}
             >
@@ -400,103 +398,5 @@ const AddBookForm = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  scrollContainer: {
-    padding: 20,
-  },
-  formContainer: {
-    width: '100%',
-  },
-  input: {
-    marginBottom: 15,
-  },
-  textArea: {
-    marginBottom: 15,
-    height: 100,
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 12,
-    marginTop: -10,
-    marginBottom: 10,
-    marginLeft: 5,
-  },
-  submitButton: {
-    marginTop: 10,
-    marginBottom: 30,
-    padding: 5,
-    backgroundColor: '#4A90E2',
-  },
-  divider: {
-    marginVertical: 15,
-  },
-  coverPreviewContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  coverImage: {
-    width: 120,
-    height: 180,
-    marginBottom: 10,
-    borderRadius: 4,
-    backgroundColor: '#F0F0F0',
-  },
-  removeCoverButton: {
-    marginVertical: 5,
-  },
-  noCoverContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 180,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 4,
-    marginBottom: 20,
-  },
-  noCoverText: {
-    marginTop: 10,
-    color: '#999999',
-    fontSize: 14,
-  },
-  chipSection: {
-    marginBottom: 15,
-  },
-  chipSectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333333',
-  },
-  chipScrollView: {
-    flexDirection: 'row',
-    marginBottom: 10,
-    maxHeight: 45,
-  },
-  chip: {
-    marginRight: 8,
-    marginBottom: 8,
-    backgroundColor: '#F5F5F5',
-  },
-  chipInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  chipInput: {
-    flex: 1,
-    marginBottom: 10,
-  },
-  libraryCodeContainer: {
-    marginBottom: 15,
-  },
-  libraryCodeHelperText: {
-    marginTop: 5,
-    fontSize: 12,
-  },
-});
 
 export default AddBookForm;

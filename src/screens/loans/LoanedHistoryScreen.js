@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { Divider } from 'react-native-paper';
 import { getBookLoanHistory } from '../../services/loanService';
 import LoanedBook from '../../components/cards/LoanedBook';
 
-const LoanedHistoryScreen = ({navigation, route}) => {
+const LoanedHistoryScreen = ({ navigation, route }) => {
   const [borrows, setBorrows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,37 +12,37 @@ const LoanedHistoryScreen = ({navigation, route}) => {
   const book_id = route.params?.book_id;
 
   useEffect(() => {
-      const fetchBook = async () => {
-        if (!book_id) {
+    const fetchBook = async () => {
+      if (!book_id) {
+        navigation.goBack();
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const loanedBookData = await getBookLoanHistory(book_id);
+
+        if (loanedBookData) {
+          setBorrows(loanedBookData.data);
+        } else {
+          Alert.alert('Error', 'Book not found');
           navigation.goBack();
-          return;
         }
-        
-        try {
-          setLoading(true);
-          const loanedBookData = await getBookLoanHistory(book_id);
-          
-          if (loanedBookData) {
-            setBorrows(loanedBookData.data);
-          } else {
-            Alert.alert('Error', 'Book not found');
-            navigation.goBack();
-          }
-        } catch (error) {
-          console.error('Error loading book:', error);
-          Alert.alert('Error', 'Failed to load book details');
-          navigation.goBack();
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      fetchBook();
-    }, [book_id]);
+      } catch (error) {
+        console.error('Error loading book:', error);
+        Alert.alert('Error', 'Failed to load book details');
+        navigation.goBack();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBook();
+  }, [book_id]);
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
       </View>
     );
@@ -50,73 +50,32 @@ const LoanedHistoryScreen = ({navigation, route}) => {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error: {error}</Text>
+      <View className="flex-1 justify-center items-center p-5">
+        <Text className="text-red-500 text-base text-center">Error: {error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-white">
       <FlatList
         data={borrows}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View>
             <LoanedBook borrow={item} />
-            <Divider style={styles.historyDivider} />
+            <Divider className="my-2.5" />
           </View>
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{ padding: 16 }}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No borrowing history found</Text>
+          <View className="flex-1 justify-center items-center mt-12">
+            <Text className="text-base text-gray-600">No borrowing history found</Text>
           </View>
         }
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  listContent: {
-    padding: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 50,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  historyDivider: {
-    marginVertical: 10,
-  },
-});
-
-
 
 export default LoanedHistoryScreen;

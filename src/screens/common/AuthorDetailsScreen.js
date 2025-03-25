@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
@@ -28,13 +27,10 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
   const [author, setAuthor] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get author ID from route params
   const authorId = route.params?.authorId;
   const authorName = route.params?.authorName || 'Author';
 
-  // Set up appropriate header based on where we came from
   useEffect(() => {
-    // Get the previous screen name
     const previousScreenName = navigation.getState().routes.length > 1
       ? navigation.getState().routes[navigation.getState().routes.length - 2].name
       : '';
@@ -42,7 +38,6 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
     let headerTitle = 'Author Details';
     let backButtonLabel = '';
     
-    // Set custom header title and back button label based on source screen
     if (previousScreenName.includes('Home')) {
       backButtonLabel = 'Home';
     } else if (previousScreenName.includes('Catalog')) {
@@ -59,7 +54,6 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
     });
   }, [navigation]);
 
-  // Load author data
   useEffect(() => {
     const fetchAuthor = async () => {
       if (!authorId) {
@@ -92,28 +86,27 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center bg-gray-100">
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text style={styles.loadingText}>Loading author details...</Text>
+        <Text className="mt-2.5 text-gray-600">Loading author details...</Text>
       </View>
     );
   }
 
-  // If no author data was found but we have the name
   if (!author && authorName) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <Card style={styles.card}>
+      <ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 15, paddingBottom: 30 }}>
+        <Card className="rounded-lg shadow-sm">
           <Card.Content>
-            <Title style={styles.title}>{authorName}</Title>
-            <Paragraph style={styles.noDataText}>
+            <Title className="text-xl leading-7 mb-1">{authorName}</Title>
+            <Paragraph className="text-base leading-6 text-gray-600 italic my-5">
               No detailed information available for this author.
             </Paragraph>
             <Button
               mode="outlined"
               icon="magnify"
               onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(authorName)}`)}
-              style={styles.searchButton}
+              className="border-blue-500"
             >
               Search Online
             </Button>
@@ -123,47 +116,46 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
     );
   }
 
-  // Render author details if we have data
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Card style={styles.card}>
+    <ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 15, paddingBottom: 30 }}>
+      <Card className="rounded-lg shadow-sm">
         <Card.Content>
-          <View style={styles.headerContainer}>
+          <View className="flex-row mb-4">
             {author.photo_covers && author.photo_covers.length > 0 ? (
               <Image
                 source={{ uri: author.photo_covers[0].urls.medium }}
-                style={styles.authorImage}
+                className="w-[120px] h-[160px] rounded-lg"
                 resizeMode="cover"
               />
             ) : (
-              <View style={styles.authorPlaceholder}>
+              <View className="w-[120px] h-[160px] rounded-lg bg-gray-200 justify-center items-center">
                 <MaterialCommunityIcons name="account" size={64} color="#CCCCCC" />
               </View>
             )}
             
-            <View style={styles.headerInfo}>
-              <Title style={styles.title}>{author.name}</Title>
+            <View className="ml-4 flex-1">
+              <Title className="text-2xl leading-7 mb-1">{author.name}</Title>
               
               {(author.birth_date || author.death_date) && (
-                <Paragraph style={styles.dates}>
+                <Paragraph className="text-base text-gray-600 mb-1">
                   {author.birth_date || '?'} - {author.death_date || 'Present'}
                 </Paragraph>
               )}
               
               {author.personal_name && author.personal_name !== author.name && (
-                <Paragraph style={styles.personalName}>
+                <Paragraph className="text-sm text-gray-600 italic mb-1">
                   {author.personal_name}
                 </Paragraph>
               )}
               
-              <View style={styles.externalLinks}>
+              <View className="flex-row items-center mt-2">
                 {author.openLibrary_key && (
                   <Tooltip title="View on Open Library">
                     <IconButton
                       icon="book-open-variant"
                       size={28}
                       onPress={() => openExternalLink(`https://openlibrary.org${author.openLibrary_key}`)}
-                      style={styles.iconButton}
+                      className="m-0.5 bg-blue-50"
                       iconColor="#4A90E2"
                     />
                   </Tooltip>
@@ -175,7 +167,7 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
                       icon="wikipedia"
                       size={28}
                       onPress={() => openExternalLink(author.wikipedia)}
-                      style={styles.iconButton}
+                      className="m-0.5 bg-blue-50"
                       iconColor="#4A90E2"
                     />
                   </Tooltip>
@@ -187,7 +179,7 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
                       icon="database"
                       size={28}
                       onPress={() => openExternalLink(`https://www.wikidata.org/wiki/${author.wikidata_id}`)}
-                      style={styles.iconButton}
+                      className="m-0.5 bg-blue-50"
                       iconColor="#4A90E2"
                     />
                   </Tooltip>
@@ -198,22 +190,22 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
           
           {author.bio && (
             <>
-              <Divider style={styles.divider} />
-              <View style={styles.bioContainer}>
-                <Text style={styles.sectionTitle}>Biography</Text>
-                <Text style={styles.bioText}>{author.bio}</Text>
+              <Divider className="my-4" />
+              <View className="mb-4">
+                <Text className="text-lg font-bold text-gray-800 mb-2">Biography</Text>
+                <Text className="text-base leading-6 text-gray-800">{author.bio}</Text>
               </View>
             </>
           )}
           
           {author.alternate_names && author.alternate_names.length > 0 && (
             <>
-              <Divider style={styles.divider} />
-              <View style={styles.alternateNamesContainer}>
-                <Text style={styles.sectionTitle}>Also Known As</Text>
-                <View style={styles.chipsContainer}>
+              <Divider className="my-4" />
+              <View className="mb-4">
+                <Text className="text-lg font-bold text-gray-800 mb-2">Also Known As</Text>
+                <View className="flex-row flex-wrap">
                   {author.alternate_names.map((name, index) => (
-                    <Chip key={index} style={styles.chip}>{name}</Chip>
+                    <Chip key={index} className="m-1 bg-blue-100">{name}</Chip>
                   ))}
                 </View>
               </View>
@@ -222,21 +214,21 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
           
           {author.photo_covers && author.photo_covers.length > 0 && (
             <>
-              <Divider style={styles.divider} />
-              <View style={styles.photosContainer}>
-                <Text style={styles.sectionTitle}>Photos</Text>
+              <Divider className="my-4" />
+              <View className="mb-4">
+                <Text className="text-lg font-bold text-gray-800 mb-2">Photos</Text>
                 <FlatList
                   horizontal
                   data={author.photo_covers}
                   keyExtractor={(item) => item.id.toString()}
                   renderItem={({ item }) => (
                     <TouchableOpacity 
-                      style={styles.photoItem}
+                      className="mr-2.5"
                       onPress={() => openExternalLink(item.urls.large)}
                     >
                       <Image
                         source={{ uri: item.urls.medium }}
-                        style={styles.photoImage}
+                        className="w-[120px] h-[160px] rounded-lg"
                         resizeMode="cover"
                       />
                     </TouchableOpacity>
@@ -249,12 +241,12 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
         </Card.Content>
       </Card>
       
-      <View style={styles.actionButtons}>
+      <View className="mt-4">
         <Button
           mode="contained"
           icon="magnify"
           onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(author.name)}`)}
-          style={styles.searchButton}
+          className="bg-blue-600"
         >
           Search Online
         </Button>
@@ -262,128 +254,5 @@ const AuthorDetailsScreen = ({ navigation, route }) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  contentContainer: {
-    padding: 15,
-    paddingBottom: 30,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#666666',
-  },
-  card: {
-    borderRadius: 10,
-    elevation: 2,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  authorImage: {
-    width: 120,
-    height: 160,
-    borderRadius: 8,
-  },
-  authorPlaceholder: {
-    width: 120,
-    height: 160,
-    borderRadius: 8,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerInfo: {
-    marginLeft: 15,
-    flex: 1,
-  },
-  title: {
-    fontSize: 22,
-    lineHeight: 26,
-    marginBottom: 4,
-  },
-  dates: {
-    fontSize: 16,
-    color: '#666666',
-    marginBottom: 4,
-  },
-  personalName: {
-    fontSize: 14,
-    color: '#666666',
-    fontStyle: 'italic',
-    marginBottom: 4,
-  },
-  externalLinks: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  iconButton: {
-    margin: 2,
-    backgroundColor: '#F0F8FF',
-  },
-  divider: {
-    marginVertical: 15,
-  },
-  bioContainer: {
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333333',
-  },
-  bioText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#333333',
-  },
-  alternateNamesContainer: {
-    marginBottom: 15,
-  },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  chip: {
-    margin: 4,
-    backgroundColor: '#E8EAF6',
-  },
-  photosContainer: {
-    marginBottom: 15,
-  },
-  photoItem: {
-    marginRight: 10,
-  },
-  photoImage: {
-    width: 120,
-    height: 160,
-    borderRadius: 8,
-  },
-  actionButtons: {
-    marginTop: 15,
-  },
-  searchButton: {
-    backgroundColor: '#4A90E2',
-  },
-  noDataText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#666666',
-    marginVertical: 20,
-    fontStyle: 'italic',
-  },
-});
 
 export default AuthorDetailsScreen;

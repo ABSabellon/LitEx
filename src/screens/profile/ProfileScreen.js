@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Alert,
   ScrollView,
@@ -40,14 +39,12 @@ const ProfileScreen = ({ navigation }) => {
         setLoading(false);
       }
     };
-
     fetchUserProfile();
   }, [currentUser]);
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      // Navigation will be handled by app navigator based on auth state
     } catch (error) {
       Alert.alert('Error', 'Failed to sign out');
     }
@@ -65,15 +62,15 @@ const ProfileScreen = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text style={styles.loadingText}>Loading profile...</Text>
+        <Text className="mt-2.5 text-gray-600">Loading profile...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-gray-100">
       <Portal>
         <Dialog
           visible={showSignOutDialog}
@@ -91,79 +88,68 @@ const ProfileScreen = ({ navigation }) => {
       </Portal>
 
       <ScrollView>
-        <View style={styles.header}>
-          <View style={styles.avatarContainer}>
+        <View className="bg-white p-5 items-center border-b border-gray-200">
+          <View className="mt-2.5 mb-3.75">
             <Avatar.Text
               size={80}
               label={getInitials(userProfile?.name)}
-              backgroundColor="#4A90E2"
+              style={{ backgroundColor: '#4A90E2' }}
             />
           </View>
-          <Text style={styles.userName}>{userProfile?.name}</Text>
-          <Text style={styles.userEmail}>{userProfile?.email}</Text>
-          <View style={[styles.roleBadge, styles.superAdminBadge]}>
-            <Text style={[styles.roleText,styles.superAdminText]}>
-              Library Owner
-            </Text>
+          <Text className="text-[22px] font-bold text-gray-800">{userProfile?.name}</Text>
+          <Text className="text-base text-gray-600 mt-1.25">{userProfile?.email}</Text>
+          <View className="bg-[#F0F8FF] px-4 py-1.5 rounded-full mt-3.75 border border-[#4A90E2]">
+            <Text className="text-[#4A90E2] font-bold">Library Owner</Text>
           </View>
         </View>
 
-        <Card style={styles.settingsCard}>
+        <Card className="m-[15px] rounded-lg shadow-md">
           <Card.Content>
             <List.Section>
               <List.Subheader>Admin Tools</List.Subheader>
-              
               <List.Item
                 title="Manage Admin Invitations"
                 description="Create and manage invites for new administrators"
                 left={props => <List.Icon {...props} icon="email-plus" color="#FF9500" />}
                 right={props => <List.Icon {...props} icon="chevron-right" />}
                 onPress={() => navigation.navigate('ManageInvites')}
-                style={styles.listItem}
+                className="py-2"
               />
-              
               <Divider />
-              
               <List.Item
                 title="Edit Profile"
                 description="Update your name, phone, and other details"
                 left={props => <List.Icon {...props} icon="account-edit" />}
                 right={props => <List.Icon {...props} icon="chevron-right" />}
                 onPress={() => Alert.alert('Coming Soon', 'This feature will be available in a future update.')}
-                style={styles.listItem}
+                className="py-2"
               />
-              
               <Divider />
-              
               <List.Item
                 title="Change Password"
                 description="Update your account password"
                 left={props => <List.Icon {...props} icon="lock-reset" />}
                 right={props => <List.Icon {...props} icon="chevron-right" />}
                 onPress={() => Alert.alert('Coming Soon', 'This feature will be available in a future update.')}
-                style={styles.listItem}
+                className="py-2"
               />
-              
               <Divider />
-              
               <List.Item
                 title="App Settings"
                 description="Notifications, theme, and other preferences"
                 left={props => <List.Icon {...props} icon="cog" />}
                 right={props => <List.Icon {...props} icon="chevron-right" />}
                 onPress={() => Alert.alert('Coming Soon', 'This feature will be available in a future update.')}
-                style={styles.listItem}
+                className="py-2"
               />
-              
               <Divider />
-              
               <List.Item
                 title="About Library App"
                 description="Version 1.0.0"
                 left={props => <List.Icon {...props} icon="information" />}
                 right={props => <List.Icon {...props} icon="chevron-right" />}
                 onPress={() => Alert.alert('About', 'Library App v1.0.0\nA complete library management solution.')}
-                style={styles.listItem}
+                className="py-2"
               />
             </List.Section>
           </Card.Content>
@@ -172,7 +158,8 @@ const ProfileScreen = ({ navigation }) => {
         <Button
           mode="outlined"
           onPress={() => setShowSignOutDialog(true)}
-          style={styles.signOutButton}
+          className="m-[15px] mb-[30px]"
+          style={{ borderColor: '#FF3B30', borderWidth: 1 }}
           icon="logout"
         >
           Sign Out
@@ -181,76 +168,5 @@ const ProfileScreen = ({ navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    color: '#666666',
-  },
-  header: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-  },
-  avatarContainer: {
-    marginTop: 10,
-    marginBottom: 15,
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#666666',
-    marginTop: 5,
-  },
-  roleBadge: {
-    backgroundColor: '#FFF5E6',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginTop: 15,
-    borderWidth: 1,
-    borderColor: '#FF9500',
-  },
-  roleText: {
-    color: '#FF9500',
-    fontWeight: 'bold',
-  },
-  superAdminBadge: {
-    backgroundColor: '#F0F8FF',
-    borderColor: '#4A90E2',
-  },
-  superAdminText: {
-    color: '#4A90E2',
-  },
-  settingsCard: {
-    margin: 15,
-    borderRadius: 10,
-    elevation: 2,
-  },
-  listItem: {
-    paddingVertical: 8,
-  },
-  signOutButton: {
-    margin: 15,
-    marginBottom: 30,
-    borderColor: '#FF3B30',
-    borderWidth: 1,
-  },
-});
 
 export default ProfileScreen;

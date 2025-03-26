@@ -9,10 +9,11 @@ import {
   Alert
 } from 'react-native';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { TextInput, Button, HelperText } from 'react-native-paper';
+import { Button, TextInput, HelperText } from 'react-native-paper';
 import { useAuth } from '../../context/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { formatPhilippinesNumber, isValidPhilippinesNumber } from '../../utils/phoneUtils';
+import InputForm from '../../components/forms/InputForm';
 
 const RegisterScreen = ({ navigation, route }) => {
   const initialValues = route.params?.initialValues || {};
@@ -114,41 +115,41 @@ const RegisterScreen = ({ navigation, route }) => {
         </View>
         
         <View className="w-full">
-          <TextInput
+          <InputForm
+            type="text"
             label="Full Name"
             value={name}
-            onChangeText={setName}
+            onChange={setName}
             mode="outlined"
             className="mb-4"
             autoCapitalize="words"
-            left={<TextInput.Icon icon="account" />}
+            leftIcon={<TextInput.Icon icon="account" />}
           />
           
-          <TextInput
+          <InputForm
+            type="email"
             label="Email"
             value={email}
-            onChangeText={setEmail}
+            onChange={setEmail}
             mode="outlined"
             className="mb-4"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            left={<TextInput.Icon icon="email" />}
+            leftIcon={<TextInput.Icon icon="email" />}
           />
           
           <View className="flex-row items-center mb-0">
             <View className="bg-gray-100 px-3 py-4 rounded border border-gray-300 mr-2 h-[56px] justify-center">
               <Text className="text-base font-medium text-gray-800">+639</Text>
             </View>
-            <TextInput
+            <InputForm
+              type="phone"
               label="Phone Number"
               value={phone}
-              onChangeText={handlePhoneChange}
+              onChange={handlePhoneChange}
               mode="outlined"
               className="flex-1"
-              keyboardType="numeric"
-              left={<TextInput.Icon icon="phone" />}
+              leftIcon={<TextInput.Icon icon="phone" />}
               placeholder="XXXXXXXXX"
-              error={!!phoneError}
+              error={phoneError}
             />
           </View>
           {phoneError ? (
@@ -161,16 +162,16 @@ const RegisterScreen = ({ navigation, route }) => {
             </HelperText>
           )}
           
-          <TextInput
+          <InputForm
+            type="password"
             label="Password"
             value={password}
-            onChangeText={setPassword}
+            onChange={setPassword}
             mode="outlined"
             className="mb-4"
             secureTextEntry={secureTextEntry}
-            autoCapitalize="none"
-            left={<TextInput.Icon icon="lock" />}
-            right={
+            leftIcon={<TextInput.Icon icon="lock" />}
+            rightIcon={
               <TextInput.Icon 
                 icon={secureTextEntry ? "eye" : "eye-off"}
                 onPress={() => setSecureTextEntry(!secureTextEntry)} 
@@ -178,16 +179,16 @@ const RegisterScreen = ({ navigation, route }) => {
             }
           />
           
-          <TextInput
+          <InputForm
+            type="password"
             label="Confirm Password"
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChange={setConfirmPassword}
             mode="outlined"
             className="mb-4"
             secureTextEntry={secureConfirmTextEntry}
-            autoCapitalize="none"
-            left={<TextInput.Icon icon="lock-check" />}
-            right={
+            leftIcon={<TextInput.Icon icon="lock-check" />}
+            rightIcon={
               <TextInput.Icon 
                 icon={secureConfirmTextEntry ? "eye" : "eye-off"}
                 onPress={() => setSecureConfirmTextEntry(!secureConfirmTextEntry)} 

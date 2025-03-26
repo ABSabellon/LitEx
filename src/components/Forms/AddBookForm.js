@@ -7,13 +7,14 @@ import {
   Platform,
   TouchableOpacity,
   Image,
-  Alert,
+  Alert
 } from 'react-native';
-import { TextInput, Button, Divider, Chip, HelperText } from 'react-native-paper';
+import { Button, TextInput, Divider, Chip } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { generateLibraryCode, explainLibraryCode } from '../../utils/libraryCodeGenerator';
+import InputForm from './InputForm';
 
 const AddBookForm = ({ 
   loading = false,
@@ -216,29 +217,28 @@ const AddBookForm = ({
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
           <View className="w-full">
-            <TextInput
+            <InputForm
+              type="number"
               label="ISBN"
               value={values.isbn}
-              onChangeText={handleChange('isbn')}
+              onChange={handleChange('isbn')}
               onBlur={handleBlur('isbn')}
               mode="outlined"
               className="mb-4"
-              keyboardType="numeric"
-              left={<TextInput.Icon icon="barcode" />}
+              leftIcon={<TextInput.Icon icon="barcode" />}
             />
             
-            <TextInput
+            <InputForm
+              type="text"
               label="Title *"
               value={values.title}
-              onChangeText={handleChange('title')}
+              onChange={handleChange('title')}
               onBlur={handleBlur('title')}
               mode="outlined"
               className="mb-4"
               error={touched.title && errors.title}
+              touched={touched.title}
             />
-            {touched.title && errors.title && (
-              <Text className="text-xs text-red-500 -mt-2.5 mb-2.5 ml-1.5">{errors.title}</Text>
-            )}
             
             <Divider className="my-4" />
             
@@ -280,10 +280,11 @@ const AddBookForm = ({
                 ))}
               </ScrollView>
               <View className="flex-row items-center">
-                <TextInput
+                <InputForm
+                  type="text"
                   placeholder="Add author (press Enter to add)"
                   value={newAuthor}
-                  onChangeText={setNewAuthor}
+                  onChange={setNewAuthor}
                   onSubmitEditing={() => addAuthorChip(newAuthor, setFieldValue)}
                   className="flex-1 mb-2.5"
                   mode="outlined"
@@ -294,19 +295,21 @@ const AddBookForm = ({
               )}
             </View>
             
-            <TextInput
+            <InputForm
+              type="text"
               label="Publisher"
               value={values.publisher}
-              onChangeText={handleChange('publisher')}
+              onChange={handleChange('publisher')}
               onBlur={handleBlur('publisher')}
               mode="outlined"
               className="mb-4"
             />
             
-            <TextInput
+            <InputForm
+              type="text"
               label="Published Date"
               value={values.published_date}
-              onChangeText={handleChange('published_date')}
+              onChange={handleChange('published_date')}
               onBlur={handleBlur('published_date')}
               mode="outlined"
               className="mb-4"
@@ -327,10 +330,11 @@ const AddBookForm = ({
                 ))}
               </ScrollView>
               <View className="flex-row items-center">
-                <TextInput
+                <InputForm
+                  type="text"
                   placeholder="Add category (press Enter to add)"
                   value={newCategory}
-                  onChangeText={setNewCategory}
+                  onChange={setNewCategory}
                   onSubmitEditing={() => addCategoryChip(newCategory, setFieldValue)}
                   className="flex-1 mb-2.5"
                   mode="outlined"
@@ -340,45 +344,50 @@ const AddBookForm = ({
             
             <View className="mb-4">
               <Text className="text-base font-bold text-gray-800 mb-2">Library Code</Text>
-              <TextInput
+              <InputForm
+                type="text"
                 label="Location Code"
                 value={values.location}
-                onChangeText={handleChange('location')}
+                onChange={handleChange('location')}
                 onBlur={handleBlur('location')}
                 mode="outlined"
                 className="mb-4"
                 placeholder="THEME-AUT-1234-001"
-                right={<TextInput.Icon icon="bookshelf" />}
+                rightIcon={<TextInput.Icon icon="bookshelf" />}
               />
               {values.location ? (
-                <HelperText type="info" className="mt-1.5 text-xs">
+                <Text className="text-xs text-gray-600 -mt-2.5 mb-2.5 ml-1.5">
                   {libraryCodeExplanation.replace('Author code', `Author (${values.author})`)}
-                </HelperText>
+                </Text>
               ) : (
-                <HelperText type="info" className="mt-1.5 text-xs">
+                <Text className="text-xs text-gray-600 -mt-2.5 mb-2.5 ml-1.5">
                   Location code is automatically generated based on genre, author, ISBN, and copy number
-                </HelperText>
+                </Text>
               )}
             </View>
             
-            <TextInput
+            <InputForm
+              type="textarea"
               label="Description"
               value={values.description}
-              onChangeText={handleChange('description')}
+              onChange={handleChange('description')}
               onBlur={handleBlur('description')}
               mode="outlined"
-              className="mb-4 h-[100px]"
+              className="mb-4"
+              height={100}
               multiline
               numberOfLines={4}
             />
             
-            <TextInput
+            <InputForm
+              type="textarea"
               label="Notes"
               value={values.notes}
-              onChangeText={handleChange('notes')}
+              onChange={handleChange('notes')}
               onBlur={handleBlur('notes')}
               mode="outlined"
-              className="mb-4 h-[100px]"
+              className="mb-4"
+              height={100}
               multiline
               numberOfLines={3}
             />

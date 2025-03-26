@@ -41,6 +41,7 @@ const BookListScreen = ({ navigation }) => {
     try {
       setLoading(true);
       const booksData = await getAllBooks();
+      console.log('booksData.data :: ', booksData.data)
       setBooks(booksData.data);
       filterAndSortBooks(booksData.data, searchQuery, statusFilter, sortOrder);
     } catch (error) {
@@ -56,6 +57,14 @@ const BookListScreen = ({ navigation }) => {
   useEffect(() => {
     loadBooks();
   }, []);
+
+
+  
+  // // Initial load
+  // useEffect(() => {
+  //   console.log('books')
+  //   // loadBooks();
+  // }, [books]);
   
   // Filter and sort books based on current criteria
   const filterAndSortBooks = (booksData, query, status, sort) => {

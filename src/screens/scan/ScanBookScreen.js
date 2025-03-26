@@ -334,32 +334,38 @@ const ScanBookScreen = ({ navigation, route }) => {
             >
               <View className="flex-1 flex-col justify-between">
                 <View className="p-2.5 flex-1">
-                  <Title className="text-[13px] font-medium text-gray-700 text-center">
+                  <Text className="text-3 font-medium text-gray-700 text-center">
                     {scannedBooks.length} Scanned Books
-                  </Title>
+                  </Text>
                   <View className="flex-row items-center mt-2.5 px-2.5">
                     {addManually && (
                       <TouchableOpacity className="p-1.5 mr-2.5" onPress={() => setAddManually(false)}>
                         <MaterialCommunityIcons name="chevron-left" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
-                    <TextInput
-                      mode="outlined"
-                      placeholder={addManually ? "Enter ISBN..." : "Search scanned books..."}
-                      className={`flex-1 h-10 bg-white rounded-[20px] ${addManually ? '' : 'ml-0'}`}
-                      left={<TextInput.Icon icon="magnify" />}
-                      outlineStyle={{ borderRadius: 20 }}
-                      value={searchInput}
-                      onChangeText={(text) => setSearchInput(text)}
-                      onSubmitEditing={handleSearchSubmit}
-                      returnKeyType="search"
-                    />
+                    
+                    {/* Input Container with flex-1 */}
+                    <View className="flex-1">
+                      <TextInput
+                        mode="outlined"
+                        placeholder={addManually ? "Enter ISBN..." : "Search scanned books..."}
+                        className="w-full"
+                        left={<TextInput.Icon icon="magnify" />}
+                        outlineStyle={{ borderRadius: 20 }}
+                        value={searchInput}
+                        onChangeText={(text) => setSearchInput(text)}
+                        onSubmitEditing={handleSearchSubmit}
+                        returnKeyType="search"
+                      />
+                    </View>
+
                     {!addManually && (
                       <TouchableOpacity className="ml-2.5 p-1.5" onPress={() => setAddManually(true)}>
                         <MaterialCommunityIcons name="plus" size={32} color="#4A90E2" />
                       </TouchableOpacity>
                     )}
                   </View>
+
                   <ScrollView
                     contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
                     className="flex-1"

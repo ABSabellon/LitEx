@@ -10,9 +10,10 @@ import {
   Alert
 } from 'react-native';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { TextInput, Button } from 'react-native-paper';
+import { Button, TextInput } from 'react-native-paper';
 import { useAuth } from '../../context/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import InputForm from '../../components/forms/InputForm';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('supertest@test.com');
@@ -67,27 +68,26 @@ const LoginScreen = ({ navigation }) => {
         </View>
         
         <View className="w-full">
-          <TextInput
+          <InputForm
+            type="email"
             label="Email"
             value={email}
-            onChangeText={setEmail}
+            onChange={setEmail}
             mode="outlined"
-            className="mb-4"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            left={<TextInput.Icon icon="email" />}
+            className="mb-5"
+            leftIcon={<TextInput.Icon icon="email" />}
           />
-          
-          <TextInput
+
+          <InputForm
+            type="password"
             label="Password"
             value={password}
-            onChangeText={setPassword}
+            onChange={setPassword}
             mode="outlined"
-            className="mb-4"
+            className="mb-5"
             secureTextEntry={secureTextEntry}
-            autoCapitalize="none"
-            left={<TextInput.Icon icon="lock" />}
-            right={
+            leftIcon={<TextInput.Icon icon="lock" />}
+            rightIcon={
               <TextInput.Icon 
                 icon={secureTextEntry ? "eye" : "eye-off"}
                 onPress={() => setSecureTextEntry(!secureTextEntry)} 

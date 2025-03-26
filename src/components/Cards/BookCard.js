@@ -84,22 +84,21 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
           
           {!admin && (
             <View>
-              {categories.length > 0 && (
-                <View className="flex-row flex-wrap items-center">
-                  {categories.slice(0, 2).map((category, index) => (
-                    <Chip 
-                      key={index} 
-                      className="mr-1.5 mb-1.5 h-[30px] bg-gray-100"
-                      textStyle="text-xs m-0"
-                    >
-                      {category}
-                    </Chip>
-                  ))}
-                  {categories.length > 2 && (
-                    <Text className="text-xs text-gray-500 ml-1.5">+{categories.length - 2} more</Text>
-                  )}
-                </View>
-              )}
+              {categories.slice(0, 2).map((category, index) => {
+                if (typeof category !== 'string') {
+                  console.warn('Invalid category type:', category);
+                  return null;
+                }
+                return (
+                  <Chip 
+                    key={index} 
+                    className="mr-1.5 mb-1.5 h-[30px] bg-gray-100"
+                    textStyle={{ fontSize: 12, margin: 0 }}
+                  >
+                    {category}
+                  </Chip>
+                );
+              })}
               
               <View className="flex-row items-center mt-2">
                 <View style={{ backgroundColor: getStatusColor(book.status) }} className="px-2 py-0.5 rounded-xl">
@@ -141,15 +140,21 @@ const BookCard = ({ book, navigation, bookNavigateTo, authorNavigateTo, admin = 
 
               {categories.length > 0 && (
                 <View className="flex-row flex-wrap items-center">
-                  {categories.slice(0, 2).map((category, index) => (
+                 {categories.slice(0, 2).map((category, index) => {
+                  if (typeof category !== 'string') {
+                    console.warn('Invalid category type:', category);
+                    return null;
+                  }
+                  return (
                     <Chip 
                       key={index} 
                       className="mr-1.5 mb-1.5 h-[30px] bg-gray-100"
-                      textStyle="text-xs m-0"
+                      textStyle={{ fontSize: 12, margin: 0 }}
                     >
                       {category}
                     </Chip>
-                  ))}
+                  );
+                })}
                   {categories.length > 2 && (
                     <Text className="text-xs text-gray-500 ml-1.5">+{categories.length - 2} more</Text>
                   )}
